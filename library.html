@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca de Temas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: #F2FAF5; min-height: 100vh; }
+
+  /* TOPBAR */
+  .topbar { background: #fff; border-bottom: 1px solid #E5EDE8; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 10; }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo .dot { width: 10px; height: 10px; border-radius: 50%; background: #2DBD6E; }
+  .topbar-logo span { font-size: 15px; font-weight: 700; color: #0D1710; }
+  .search-top { position: relative; }
+  .search-top input { padding: 8px 12px 8px 34px; border-radius: 10px; border: 1px solid #D8E5DC; background: #F8FCF9; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #0D1710; width: 240px; }
+  .search-top input:focus { outline: none; border-color: #2DBD6E; background: #fff; }
+  .search-top .si { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.4; pointer-events: none; }
+
+  /* LAYOUT */
+  .page { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+  .page-header { margin-bottom: 1.75rem; }
+  .page-header h1 { font-size: 22px; font-weight: 700; color: #0D1710; margin-bottom: 4px; }
+  .page-header p { font-size: 14px; color: #6B7B6F; }
+
+  /* NICHE TABS */
+  .niches { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 2rem; }
+  .niche-tab { padding: 8px 16px; border-radius: 99px; border: 1px solid #D8E5DC; background: #fff; cursor: pointer; font-size: 13px; color: #3A4A3F; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .niche-tab:hover { border-color: #2DBD6E; color: #1A8A4A; background: #EDF9F3; }
+  .niche-tab.active { background: #2DBD6E; color: #fff; border-color: #2DBD6E; font-weight: 600; }
+  .niche-tab .nt-count { font-size: 11px; opacity: 0.7; background: rgba(0,0,0,.1); padding: 1px 7px; border-radius: 99px; }
+  .niche-tab.active .nt-count { background: rgba(255,255,255,.25); opacity: 1; }
+
+  /* SECTION HEADER */
+  .section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .section-hdr h2 { font-size: 16px; font-weight: 600; color: #0D1710; }
+  .section-hdr span { font-size: 12px; color: #6B7B6F; }
+
+  /* CARDS GRID */
+  .themes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 2.5rem; }
+
+  /* THEME CARD */
+  .t-card { background: #fff; border-radius: 14px; border: 1px solid #E5EDE8; padding: 1.1rem 1.25rem; transition: box-shadow 0.2s, transform 0.2s; position: relative; }
+  .t-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); transform: translateY(-2px); }
+  .t-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  .t-card-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .t-card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+  .badge.edu   { background: #EDF9F3; color: #1A8A4A; }
+  .badge.myth  { background: #FFF7ED; color: #C06800; }
+  .badge.tips  { background: #EEF4FF; color: #2563EB; }
+  .badge.data  { background: #F5F0FF; color: #7C3AED; }
+  .badge.sell  { background: #FFF0F5; color: #DB2777; }
+  .badge.story { background: #F0FFF4; color: #15803D; }
+  .badge.slides { background: #F8F8F8; color: #6B7B6F; border: 1px solid #E5EDE8; }
+  .t-card-title { font-size: 14px; font-weight: 600; color: #0D1710; margin-bottom: 5px; line-height: 1.35; }
+  .t-card-desc { font-size: 12px; color: #6B7B6F; line-height: 1.5; margin-bottom: 12px; }
+  .t-card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .t-card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag-pill { font-size: 10.5px; padding: 2px 8px; border-radius: 99px; background: #F2F7F4; color: #5A6A60; border: 1px solid #E5EDE8; }
+  .use-btn { padding: 7px 16px; border-radius: 8px; background: #0D1710; color: #fff; border: none; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: background 0.15s; white-space: nowrap; }
+  .use-btn:hover { background: #2DBD6E; }
+  .use-btn.used { background: #2DBD6E; }
+
+  /* MODAL - USE THEME */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 480px; overflow: hidden; }
+  .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #E5EDE8; display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 16px; font-weight: 600; color: #0D1710; }
+  .modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #D8E5DC; background: #fff; cursor: pointer; font-size: 16px; color: #6B7B6F; display: flex; align-items: center; justify-content: center; }
+  .modal-body { padding: 1.5rem; }
+  .modal-topic { background: #F2FAF5; border: 1px solid #C8E6D5; border-radius: 12px; padding: 12px 14px; font-size: 14px; font-weight: 600; color: #0D1710; margin-bottom: 1rem; line-height: 1.4; }
+  .modal-field { margin-bottom: 1rem; }
+  .modal-field label { display: block; font-size: 12px; font-weight: 600; color: #6B7B6F; margin-bottom: 5px; }
+  .modal-field input, .modal-field select { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #D8E5DC; background: #FAFCFB; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #0D1710; }
+  .modal-field input:focus, .modal-field select:focus { outline: none; border-color: #2DBD6E; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #E5EDE8; display: flex; gap: 8px; justify-content: flex-end; }
+  .mb-btn { padding: 9px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; border: 1px solid #D8E5DC; background: #fff; color: #3A4A3F; transition: all 0.15s; }
+  .mb-btn:hover { background: #F2F7F4; }
+  .mb-btn.primary { background: #2DBD6E; color: #fff; border-color: #2DBD6E; }
+  .mb-btn.primary:hover { background: #24A660; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 4rem 2rem; }
+  .empty h3 { font-size: 18px; font-weight: 600; color: #0D1710; margin-bottom: 8px; }
+  .empty p { font-size: 14px; color: #6B7B6F; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: #0D1710; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.3s; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-dot">C</div>
+    <div><div class="logo-text">Carousel Engine</div><div class="logo-sub">Painel de criação</div></div>
+  </div>
+  <div class="nav-section"><a href="index.html" class="nav-item "><span class="nav-icon">🏠</span>Dashboard</a><a href="engine.html" class="nav-item "><span class="nav-icon">✨</span>Criar Carrossel</a><a href="caption.html" class="nav-item "><span class="nav-icon">✍️</span>Legenda + Hashtags</a><a href="library.html" class="nav-item active"><span class="nav-icon">📚</span>Biblioteca de Temas</a><div class="nav-label" style="margin-top:8px;">Gestão</div><a href="clients.html" class="nav-item "><span class="nav-icon">👥</span>Clientes</a><a href="history.html" class="nav-item "><span class="nav-icon">🕐</span>Histórico</a></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-client" id="sidebarClient"></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Biblioteca de Temas</span>
+    <div class="topbar-actions">
+      <a href="engine.html" class="btn primary sm">✨ Criar carrossel</a>
+    </div>
+  </div>
+  <div class="content" style="max-width:700px;">
+
+
+<div class="topbar">
+  <div class="topbar-logo"><div class="dot"></div><span>Biblioteca de Temas</span></div>
+  <div class="search-top">
+    <span class="si">🔍</span>
+    <input type="text" id="searchGlobal" placeholder="Buscar tema..." oninput="renderAll()">
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Ideias prontas por nicho</h1>
+    <p>Clique em <strong>Usar</strong> para abrir o tema diretamente na engine de criação.</p>
+  </div>
+
+  <div class="niches" id="nicheTabs"></div>
+  <div id="content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeMod(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Usar este tema</h3>
+      <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-topic" id="modalTopic"></div>
+      <div class="modal-field"><label>Tom do carrossel</label>
+        <select id="modalTone">
+          <option>Técnico e educativo</option>
+          <option>Acessível e motivacional</option>
+          <option>Direto e impactante</option>
+          <option>Simples com embasamento</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>Quantidade de slides</label>
+        <select id="modalSlides">
+          <option value="5">5 slides</option>
+          <option value="7" selected>7 slides</option>
+          <option value="8">8 slides</option>
+          <option value="10">10 slides</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="mb-btn" onclick="document.getElementById('modalBg').classList.remove('open')">Cancelar</button>
+      <button class="mb-btn primary" onclick="useTheme()">Abrir na Engine →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const LIBRARY = [
+  // PERSONAL TRAINER
+  { id:'pt1',  niche:'Personal Trainer', icon:'💪', type:'edu',   slides:7,  title:'Os 5 erros que travam seus resultados na academia', desc:'Conteúdo educativo que derruba mitos comuns. Gera muito salvamento.', tags:['musculação','iniciante','erro'] },
+  { id:'pt2',  niche:'Personal Trainer', icon:'🔥', type:'myth',  slides:7,  title:'Treinar em jejum emagrece mais? A ciência responde', desc:'Quebra de mito com embasamento. Alta viralidade no nicho fitness.', tags:['jejum','emagrecimento','mito'] },
+  { id:'pt3',  niche:'Personal Trainer', icon:'📊', type:'data',  slides:10, title:'Novas diretrizes ACSM 2026 para treino de força', desc:'Conteúdo de autoridade baseado em evidências científicas recentes.', tags:['ACSM','ciência','força'] },
+  { id:'pt4',  niche:'Personal Trainer', icon:'🏃', type:'edu',   slides:7,  title:'Como combinar musculação e corrida sem perder músculo', desc:'Um dos temas mais buscados — responde dúvida real do público.', tags:['corrida','concorrente','cardio'] },
+  { id:'pt5',  niche:'Personal Trainer', icon:'⚡', type:'tips',  slides:7,  title:'5 exercícios que substituem a academia em casa', desc:'Alta retenção — solução prática para quem não tem academia.', tags:['casa','funcional','sem equipamento'] },
+  { id:'pt6',  niche:'Personal Trainer', icon:'🥊', type:'edu',   slides:8,  title:'Por que todo praticante de luta deveria fazer musculação', desc:'Nicho específico com baixa concorrência e alta intenção de compra.', tags:['luta','BJJ','muay thai'] },
+  { id:'pt7',  niche:'Personal Trainer', icon:'📈', type:'data',  slides:7,  title:'Quanto tempo leva para ver resultado no treino?', desc:'Pergunta universal. Resposta científica que fideliza o seguidor.', tags:['resultado','tempo','expectativa'] },
+  { id:'pt8',  niche:'Personal Trainer', icon:'💊', type:'myth',  slides:7,  title:'Suplementos que você realmente precisa (e os que não precisa)', desc:'Sempre gera debate e salvamento. Monetiza com afiliação.', tags:['suplemento','whey','creatina'] },
+  { id:'pt9',  niche:'Personal Trainer', icon:'🌙', type:'edu',   slides:7,  title:'O papel do sono na hipertrofia — o que a ciência diz', desc:'Conteúdo diferenciado que posiciona como especialista.', tags:['sono','recuperação','hormônio'] },
+  { id:'pt10', niche:'Personal Trainer', icon:'🎯', type:'sell',  slides:7,  title:'Como funciona uma consultoria online de verdade', desc:'CTA direto para converter seguidores em clientes.', tags:['consultoria','online','venda'] },
+
+  // NUTRICIONISTA
+  { id:'nu1',  niche:'Nutricionista', icon:'🥗', type:'edu',   slides:7,  title:'O que comer antes e depois do treino para maximizar resultados', desc:'Alto volume de buscas — responde dúvida universal de praticantes.', tags:['pré-treino','pós-treino','alimentação'] },
+  { id:'nu2',  niche:'Nutricionista', icon:'🍕', type:'myth',  slides:7,  title:'Comer à noite engorda? A resposta definitiva da ciência', desc:'Mito clássico que gera comentários e salvamentos.', tags:['mito','noite','calorias'] },
+  { id:'nu3',  niche:'Nutricionista', icon:'💧', type:'edu',   slides:5,  title:'Guia completo de hidratação para quem treina', desc:'Baseado em estudo científico sobre corredores e exercício.', tags:['água','hidratação','desempenho'] },
+  { id:'nu4',  niche:'Nutricionista', icon:'🔢', type:'tips',  slides:7,  title:'Como calcular quantas calorias você precisa por dia', desc:'Post prático com passo a passo. Gera muito salvamento.', tags:['calorias','TDEE','metabolismo'] },
+  { id:'nu5',  niche:'Nutricionista', icon:'🥩', type:'data',  slides:7,  title:'Proteína: quanto você realmente precisa por dia?', desc:'Conteúdo científico que derruba o excesso e o déficit.', tags:['proteína','músculo','recomendação'] },
+  { id:'nu6',  niche:'Nutricionista', icon:'🩺', type:'edu',   slides:8,  title:'5 sinais de que sua dieta está prejudicando seu desempenho', desc:'Conteúdo preventivo que gera engajamento e consultas.', tags:['dieta','fadiga','deficiência'] },
+  { id:'nu7',  niche:'Nutricionista', icon:'🍫', type:'myth',  slides:7,  title:'Açúcar é veneno? O que a ciência realmente diz', desc:'Alto potencial viral — polariza e gera debate saudável.', tags:['açúcar','carboidrato','mito'] },
+  { id:'nu8',  niche:'Nutricionista', icon:'🛒', type:'tips',  slides:7,  title:'Guia de compras saudáveis no supermercado', desc:'Conteúdo prático que facilita a vida do paciente.', tags:['compras','lista','prático'] },
+
+  // PSICÓLOGO
+  { id:'ps1',  niche:'Psicólogo', icon:'🧠', type:'edu',   slides:7,  title:'O que é ansiedade e como ela funciona no seu corpo', desc:'Educação em saúde mental — alto volume de buscas.', tags:['ansiedade','saúde mental','educação'] },
+  { id:'ps2',  niche:'Psicólogo', icon:'😴', type:'tips',  slides:7,  title:'7 práticas de higiene do sono respaldadas pela ciência', desc:'Post prático que resolve problema real. Gera muito salvamento.', tags:['sono','ansiedade','rotina'] },
+  { id:'ps3',  niche:'Psicólogo', icon:'💬', type:'story', slides:7,  title:'Como saber se é hora de procurar terapia', desc:'Conteúdo que reduz a resistência e converte em consultas.', tags:['terapia','ajuda','autoconhecimento'] },
+  { id:'ps4',  niche:'Psicólogo', icon:'😤', type:'edu',   slides:7,  title:'Burnout: sintomas, causas e como sair dele', desc:'Alta demanda pós-pandemia. Posiciona como especialista.', tags:['burnout','trabalho','exaustão'] },
+  { id:'ps5',  niche:'Psicólogo', icon:'🪞', type:'myth',  slides:7,  title:'5 mitos sobre saúde mental que você ainda acredita', desc:'Quebra de estigma com embasamento clínico.', tags:['mito','estigma','psicologia'] },
+  { id:'ps6',  niche:'Psicólogo', icon:'❤️', type:'edu',   slides:8,  title:'O que é apego ansioso e como ele afeta seus relacionamentos', desc:'Altíssimo engajamento — tema que todo mundo se identifica.', tags:['apego','relacionamento','padrão'] },
+
+  // FISIOTERAPEUTA
+  { id:'ft1',  niche:'Fisioterapeuta', icon:'🦴', type:'edu',   slides:7,  title:'Por que sua dor nas costas não passa — e o que fazer', desc:'Dor lombar é a queixa mais comum. Alta intenção de busca.', tags:['lombar','dor','postura'] },
+  { id:'ft2',  niche:'Fisioterapeuta', icon:'🦵', type:'tips',  slides:7,  title:'5 exercícios para fortalecer o joelho e prevenir lesões', desc:'Conteúdo preventivo que gera muito salvamento.', tags:['joelho','lesão','fortalecimento'] },
+  { id:'ft3',  niche:'Fisioterapeuta', icon:'🏋️', type:'edu',   slides:7,  title:'Alongar antes de treinar faz bem ou mal? A verdade', desc:'Mito muito discutido no fitness que gera debate e alcance.', tags:['alongamento','aquecimento','mito'] },
+  { id:'ft4',  niche:'Fisioterapeuta', icon:'💻', type:'story', slides:7,  title:'Síndrome do sedentário: o que acontece com seu corpo ao ficar horas sentado', desc:'Relevante para o público geral urbano.', tags:['sedentarismo','escritório','postura'] },
+  { id:'ft5',  niche:'Fisioterapeuta', icon:'🧘', type:'tips',  slides:7,  title:'Rotina de mobilidade para fazer em 10 minutos por dia', desc:'Conteúdo prático com alta taxa de salvamento.', tags:['mobilidade','flexibilidade','rotina'] },
+
+  // COACH / DESENVOLVIMENTO PESSOAL
+  { id:'co1',  niche:'Coach', icon:'🎯', type:'edu',   slides:7,  title:'Por que você começa tudo e não termina — e como mudar', desc:'Tema universal com alta identificação do público.', tags:['hábito','procrastinação','foco'] },
+  { id:'co2',  niche:'Coach', icon:'⏰', type:'tips',  slides:7,  title:'O método que triplicou minha produtividade em 30 dias', desc:'Hook de resultado concreto — alta taxa de clique.', tags:['produtividade','gestão','tempo'] },
+  { id:'co3',  niche:'Coach', icon:'🧩', type:'edu',   slides:8,  title:'O que é mindset de crescimento e como desenvolver o seu', desc:'Conceito popularizado com aplicação prática.', tags:['mindset','crescimento','mentalidade'] },
+  { id:'co4',  niche:'Coach', icon:'💰', type:'story', slides:7,  title:'5 crenças sobre dinheiro que te impedem de crescer', desc:'Alta viralidade — toca em ponto sensível do público.', tags:['crenças','dinheiro','bloqueio'] },
+  { id:'co5',  niche:'Coach', icon:'🔋', type:'tips',  slides:7,  title:'Rotina matinal de alto desempenho: o que funciona de verdade', desc:'Conteúdo aspiracional com dicas acionáveis.', tags:['rotina','manhã','hábitos'] },
+
+  // MÉDICO / SAÚDE GERAL
+  { id:'md1',  niche:'Médico', icon:'🩺', type:'edu',   slides:7,  title:'Exames que todo adulto deveria fazer anualmente', desc:'Conteúdo de saúde preventiva — altíssimo salvamento.', tags:['exame','prevenção','saúde'] },
+  { id:'md2',  niche:'Médico', icon:'💉', type:'myth',  slides:7,  title:'Suplementos de vitamina D: quando tomar e quando não tomar', desc:'Tema em alta — muita desinformação no mercado.', tags:['vitamina D','suplemento','deficiência'] },
+  { id:'md3',  niche:'Médico', icon:'❤️', type:'edu',   slides:8,  title:'O que seus exames de colesterol realmente significam', desc:'Descomplicar exame técnico — gera autoridade e engajamento.', tags:['colesterol','exame','coração'] },
+  { id:'md4',  niche:'Médico', icon:'🔬', type:'data',  slides:7,  title:'Como a inflamação crônica destrói sua saúde silenciosamente', desc:'Conteúdo educativo que conecta hábitos a doenças.', tags:['inflamação','crônica','estilo de vida'] },
+];
+
+const NICHES = ['Todos', ...new Set(LIBRARY.map(t => t.niche))];
+const TYPE_LABELS = { edu:'Educativo', myth:'Mito', tips:'Dicas', data:'Dados', sell:'Conversão', story:'Storytelling' };
+const TYPE_CLASSES = { edu:'edu', myth:'myth', tips:'tips', data:'data', sell:'sell', story:'story' };
+
+let _activeNiche = 'Todos';
+let _pendingTheme = null;
+
+// ── RENDER TABS ──
+function renderTabs() {
+  const tabs = document.getElementById('nicheTabs');
+  tabs.innerHTML = NICHES.map(n => {
+    const count = n === 'Todos' ? LIBRARY.length : LIBRARY.filter(t => t.niche === n).length;
+    return `<button class="niche-tab${_activeNiche===n?' active':''}" onclick="setNiche('${n}')">${nicheIcon(n)} ${n} <span class="nt-count">${count}</span></button>`;
+  }).join('');
+}
+
+function nicheIcon(n) {
+  const map = { 'Todos':'🗂️', 'Personal Trainer':'💪', 'Nutricionista':'🥗', 'Psicólogo':'🧠', 'Fisioterapeuta':'🦴', 'Coach':'🎯', 'Médico':'🩺' };
+  return map[n] || '📌';
+}
+
+function setNiche(n) { _activeNiche = n; renderAll(); }
+
+// ── RENDER CONTENT ──
+function renderAll() {
+  renderTabs();
+  const q = document.getElementById('searchGlobal').value.toLowerCase();
+  let items = LIBRARY.filter(t => {
+    const matchNiche = _activeNiche === 'Todos' || t.niche === _activeNiche;
+    const matchQ = !q || t.title.toLowerCase().includes(q) || t.niche.toLowerCase().includes(q) || t.tags.some(tg => tg.includes(q));
+    return matchNiche && matchQ;
+  });
+
+  const content = document.getElementById('content');
+  if (!items.length) {
+    content.innerHTML = `<div class="empty"><h3>Nenhum tema encontrado</h3><p>Tente outro termo ou nicho.</p></div>`;
+    return;
+  }
+
+  if (_activeNiche === 'Todos' && !q) {
+    // Group by niche
+    const byNiche = {};
+    items.forEach(t => { if (!byNiche[t.niche]) byNiche[t.niche] = []; byNiche[t.niche].push(t); });
+    content.innerHTML = Object.entries(byNiche).map(([niche, ts]) => `
+      <div class="section-hdr"><h2>${nicheIcon(niche)} ${niche}</h2><span>${ts.length} temas</span></div>
+      <div class="themes-grid">${ts.map(t => cardHTML(t)).join('')}</div>
+    `).join('');
+  } else {
+    content.innerHTML = `
+      <div class="section-hdr"><h2>${nicheIcon(_activeNiche)} ${_activeNiche==='Todos'?'Resultados':_activeNiche}</h2><span>${items.length} temas</span></div>
+      <div class="themes-grid">${items.map(t => cardHTML(t)).join('')}</div>
+    `;
+  }
+}
+
+function cardHTML(t) {
+  const usedIds = JSON.parse(sessionStorage.getItem('usedThemes') || '[]');
+  const used = usedIds.includes(t.id);
+  return `<div class="t-card">
+    <div class="t-card-top">
+      <div class="t-card-icon" style="background:${iconBg(t.type)}">${t.icon}</div>
+      <div class="t-card-badges">
+        <span class="badge ${TYPE_CLASSES[t.type]||'edu'}">${TYPE_LABELS[t.type]||t.type}</span>
+        <span class="badge slides">${t.slides} slides</span>
+      </div>
+    </div>
+    <div class="t-card-title">${t.title}</div>
+    <div class="t-card-desc">${t.desc}</div>
+    <div class="t-card-footer">
+      <div class="t-card-tags">${t.tags.slice(0,2).map(tg=>`<span class="tag-pill">#${tg}</span>`).join('')}</div>
+      <button class="use-btn${used?' used':''}" onclick="openUseMod('${t.id}')">${used?'✓ Usado':'Usar'}</button>
+    </div>
+  </div>`;
+}
+
+function iconBg(type) {
+  const map = { edu:'#EDF9F3', myth:'#FFF7ED', tips:'#EEF4FF', data:'#F5F0FF', sell:'#FFF0F5', story:'#F0FFF4' };
+  return map[type] || '#F2F7F4';
+}
+
+// ── USE MODAL ──
+function openUseMod(id) {
+  const t = LIBRARY.find(x => x.id === id);
+  if (!t) return;
+  _pendingTheme = t;
+  document.getElementById('modalTopic').textContent = t.title;
+  document.getElementById('modalSlides').value = t.slides;
+  // set default tone based on type
+  const toneMap = { edu:'Técnico e educativo', myth:'Direto e impactante', tips:'Acessível e motivacional', data:'Técnico e educativo', sell:'Direto e impactante', story:'Simples com embasamento' };
+  const sel = document.getElementById('modalTone');
+  const tone = toneMap[t.type] || 'Técnico e educativo';
+  for (let i = 0; i < sel.options.length; i++) { if (sel.options[i].value === tone || sel.options[i].text === tone) { sel.selectedIndex = i; break; } }
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeMod(e) { if (e.target === document.getElementById('modalBg')) document.getElementById('modalBg').classList.remove('open'); }
+
+function useTheme() {
+  if (!_pendingTheme) return;
+  const tone   = document.getElementById('modalTone').value;
+  const slides = document.getElementById('modalSlides').value;
+  // Mark as used
+  const used = JSON.parse(sessionStorage.getItem('usedThemes') || '[]');
+  if (!used.includes(_pendingTheme.id)) { used.push(_pendingTheme.id); sessionStorage.setItem('usedThemes', JSON.stringify(used)); }
+  // Build engine URL with params (or copy to clipboard as fallback)
+  const params = new URLSearchParams({ topic: _pendingTheme.title, tone, slides, niche: _pendingTheme.niche });
+  const engineURL = `carousel_engine.html?${params.toString()}`;
+  // Try to open engine — if not found, copy topic to clipboard
+  const newWin = window.open(engineURL, '_blank');
+  if (!newWin || newWin.closed) {
+    navigator.clipboard.writeText(_pendingTheme.title).then(() => {
+      showToast('Tema copiado! Cole na engine de carrosséis.');
+    }).catch(() => showToast('Tema: ' + _pendingTheme.title));
+  } else {
+    showToast('Abrindo na engine...');
+  }
+  document.getElementById('modalBg').classList.remove('open');
+  renderAll();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+renderAll();
+</script>
+<script src="shared.js"></script>
+
+  </div>
+</div>
+
+<script>if(typeof loadProfileSidebar!=="undefined")loadProfileSidebar();</script>
+</body>
+</html>

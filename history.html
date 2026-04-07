@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histórico de Carrosséis</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: #F2FAF5; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .topbar { background: #fff; border-bottom: 1px solid #E5EDE8; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 10; }
+  .topbar-logo { display: flex; align-items: center; gap: 10px; }
+  .topbar-logo .dot { width: 10px; height: 10px; border-radius: 50%; background: #2DBD6E; }
+  .topbar-logo span { font-size: 15px; font-weight: 700; color: #0D1710; }
+  .topbar-actions { display: flex; gap: 8px; }
+  .tb-btn { padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; border: 1px solid #D8E5DC; background: #fff; color: #3A4A3F; }
+  .tb-btn:hover { background: #EDF9F3; border-color: #2DBD6E; color: #1A8A4A; }
+  .tb-btn.primary { background: #2DBD6E; color: #fff; border-color: #2DBD6E; font-weight: 600; }
+  .tb-btn.primary:hover { background: #24A660; }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* ── STATS BAR ── */
+  .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .stat-card { background: #fff; border-radius: 14px; border: 1px solid #E5EDE8; padding: 1rem 1.25rem; }
+  .stat-num { font-size: 28px; font-weight: 700; color: #0D1710; line-height: 1; }
+  .stat-label { font-size: 12px; color: #6B7B6F; margin-top: 4px; }
+
+  /* ── FILTERS ── */
+  .filters { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 180px; }
+  .search-wrap input { width: 100%; padding: 9px 12px 9px 36px; border-radius: 10px; border: 1px solid #D8E5DC; background: #fff; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #0D1710; }
+  .search-wrap input:focus { outline: none; border-color: #2DBD6E; }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 14px; opacity: 0.45; pointer-events: none; }
+  .sort-select { padding: 9px 12px; border-radius: 10px; border: 1px solid #D8E5DC; background: #fff; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #3A4A3F; cursor: pointer; }
+  .sort-select:focus { outline: none; border-color: #2DBD6E; }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 4rem 2rem; }
+  .empty-icon { font-size: 48px; margin-bottom: 1rem; opacity: 0.35; }
+  .empty h3 { font-size: 18px; font-weight: 600; color: #0D1710; margin-bottom: 8px; }
+  .empty p { font-size: 14px; color: #6B7B6F; line-height: 1.55; max-width: 320px; margin: 0 auto 1.5rem; }
+
+  /* ── HISTORY GRID ── */
+  .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+  /* ── HISTORY CARD ── */
+  .h-card { background: #fff; border-radius: 16px; border: 1px solid #E5EDE8; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; cursor: pointer; }
+  .h-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .h-card-thumb { height: 140px; display: flex; gap: 4px; padding: 10px; background: #F8FCF9; border-bottom: 1px solid #E5EDE8; overflow: hidden; }
+  .thumb-slide { flex: 1; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px 6px; overflow: hidden; position: relative; min-width: 0; }
+  .thumb-slide .ts-tag { font-size: 6px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; margin-bottom: 3px; white-space: nowrap; overflow: hidden; }
+  .thumb-slide .ts-title { font-size: 7.5px; font-weight: 700; line-height: 1.2; color: inherit; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+  .thumb-slide .ts-bar { position: absolute; bottom: 4px; left: 6px; right: 6px; height: 2px; border-radius: 99px; opacity: 0.5; }
+  .h-card-body { padding: 14px 16px; }
+  .h-card-title { font-size: 14px; font-weight: 600; color: #0D1710; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .h-card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .h-card-meta span { font-size: 11.5px; color: #8A9E90; }
+  .h-card-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: #C8D8CC; }
+  .h-card-actions { display: flex; gap: 7px; }
+  .hc-btn { flex: 1; padding: 7px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; text-align: center; border: 1px solid #D8E5DC; background: #fff; color: #3A4A3F; }
+  .hc-btn:hover { background: #EDF9F3; border-color: #2DBD6E; color: #1A8A4A; }
+  .hc-btn.del { color: #CC4444; }
+  .hc-btn.del:hover { background: #FFF0F0; border-color: #FFAAAA; }
+  .hc-btn.open { background: #0D1710; color: #fff; border-color: #0D1710; font-weight: 600; }
+  .hc-btn.open:hover { background: #1a2e1e; }
+
+  /* ── MODAL ── */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 520px; overflow: hidden; }
+  .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #E5EDE8; display: flex; align-items: center; justify-content: space-between; }
+  .modal-header h3 { font-size: 16px; font-weight: 600; color: #0D1710; }
+  .modal-close { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #D8E5DC; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #6B7B6F; }
+  .modal-body { padding: 1.5rem; }
+  .modal-slide-list { display: flex; flex-direction: column; gap: 8px; max-height: 360px; overflow-y: auto; }
+  .modal-slide { padding: 12px 14px; border-radius: 12px; border: 1px solid #E5EDE8; }
+  .ms-num { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #A0B0A5; margin-bottom: 4px; }
+  .ms-title { font-size: 13px; font-weight: 600; color: #0D1710; margin-bottom: 3px; }
+  .ms-body { font-size: 12px; color: #6B7B6F; line-height: 1.45; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #E5EDE8; display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: #0D1710; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.3s; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-dot">C</div>
+    <div><div class="logo-text">Carousel Engine</div><div class="logo-sub">Painel de criação</div></div>
+  </div>
+  <div class="nav-section"><a href="index.html" class="nav-item "><span class="nav-icon">🏠</span>Dashboard</a><a href="engine.html" class="nav-item "><span class="nav-icon">✨</span>Criar Carrossel</a><a href="caption.html" class="nav-item "><span class="nav-icon">✍️</span>Legenda + Hashtags</a><a href="library.html" class="nav-item "><span class="nav-icon">📚</span>Biblioteca de Temas</a><div class="nav-label" style="margin-top:8px;">Gestão</div><a href="clients.html" class="nav-item "><span class="nav-icon">👥</span>Clientes</a><a href="history.html" class="nav-item active"><span class="nav-icon">🕐</span>Histórico</a></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-client" id="sidebarClient"></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Histórico de Carrosséis</span>
+    <div class="topbar-actions">
+      <a href="engine.html" class="btn primary sm">✨ Criar carrossel</a>
+    </div>
+  </div>
+  <div class="content" style="max-width:700px;">
+
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="dot"></div>
+    <span>Histórico de Carrosséis</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="tb-btn" onclick="clearAll()">Limpar tudo</button>
+    <button class="tb-btn primary" onclick="addDemo()">+ Demo</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Carrosséis criados</div></div>
+    <div class="stat-card"><div class="stat-num" id="statSlides">0</div><div class="stat-label">Slides gerados</div></div>
+    <div class="stat-card"><div class="stat-num" id="statWeek">0</div><div class="stat-label">Esta semana</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="searchInput" placeholder="Buscar por tema..." oninput="renderList()"></div>
+    <select class="sort-select" id="sortSelect" onchange="renderList()">
+      <option value="newest">Mais recentes</option>
+      <option value="oldest">Mais antigos</option>
+      <option value="alpha">A–Z</option>
+      <option value="slides">Mais slides</option>
+    </select>
+  </div>
+
+  <div id="listWrap"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">—</h3>
+      <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-slide-list" id="modalSlides"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="tb-btn" onclick="document.getElementById('modalBg').classList.remove('open')">Fechar</button>
+      <button class="tb-btn primary" onclick="exportCurrent()">↓ Baixar HTML</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const HISTORY_KEY = 'carousel_history_v1';
+let _history = [];
+let _currentItem = null;
+
+// ── STORAGE ──
+function loadHistory() {
+  try { _history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { _history = []; }
+}
+function saveHistory() {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(_history)); } catch(e) { console.warn(e); }
+}
+
+// ── PUBLIC API — chamado pela engine ao gerar carrossel ──
+window.saveCarousel = function(entry) {
+  // entry = { topic, niche, handle, color, nSlides, slides, html }
+  loadHistory();
+  const item = {
+    id: Date.now().toString(),
+    createdAt: new Date().toISOString(),
+    topic: entry.topic || 'Sem título',
+    niche: entry.niche || '',
+    handle: entry.handle || '',
+    color: entry.color || '#2DBD6E',
+    nSlides: entry.nSlides || entry.slides?.length || 0,
+    slides: entry.slides || [],
+    html: entry.html || ''
+  };
+  _history.unshift(item);
+  if (_history.length > 100) _history = _history.slice(0, 100);
+  saveHistory();
+  renderAll();
+  showToast('Carrossel salvo no histórico ✓');
+};
+
+// ── RENDER ──
+function renderAll() {
+  loadHistory();
+  updateStats();
+  renderList();
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = _history.length;
+  document.getElementById('statSlides').textContent = _history.reduce((a, c) => a + (c.nSlides || 0), 0);
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  document.getElementById('statWeek').textContent = _history.filter(h => new Date(h.createdAt).getTime() > weekAgo).length;
+}
+
+function renderList() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const sort  = document.getElementById('sortSelect').value;
+  let items = _history.filter(h => h.topic.toLowerCase().includes(query) || (h.niche||'').toLowerCase().includes(query));
+
+  if (sort === 'newest') items.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  else if (sort === 'oldest') items.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+  else if (sort === 'alpha') items.sort((a,b) => a.topic.localeCompare(b.topic));
+  else if (sort === 'slides') items.sort((a,b) => (b.nSlides||0) - (a.nSlides||0));
+
+  const wrap = document.getElementById('listWrap');
+
+  if (!items.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><h3>${query ? 'Nenhum resultado' : 'Histórico vazio'}</h3><p>${query ? 'Tente outro termo de busca.' : 'Os carrosséis que você gerar aparecerão aqui automaticamente.'}</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div class="history-grid">${items.map(item => cardHTML(item)).join('')}</div>`;
+}
+
+function cardHTML(item) {
+  const color  = item.color || '#2DBD6E';
+  const light  = lighten(color, 0.85);
+  const dark   = darken(color, 0.55);
+  const slides = item.slides || [];
+  const types  = slides.map((_,i) => i===0?'light':i===slides.length-1?'dark':['dark','grad','light','dark','grad','light'][(i-1)%6]);
+  const preview3 = slides.slice(0, Math.min(3, slides.length));
+
+  const thumbs = preview3.map((s, i) => {
+    const type = types[i];
+    let bg = type==='light'?light:type==='dark'?'#0D1710':`linear-gradient(165deg,${dark} 0%,${color} 50%,${lighten(color,.3)} 100%)`;
+    const tc = type==='light'?'#0D1710':'#fff';
+    const tg = type==='light'?dark:(type==='grad'?'rgba(255,255,255,.6)':lighten(color,.3));
+    return `<div class="thumb-slide" style="background:${bg};color:${tc};">
+      <div class="ts-tag" style="color:${tg};">${s.tag||''}</div>
+      <div class="ts-title">${s.title||''}</div>
+      <div class="ts-bar" style="background:${type!=='light'?'rgba(255,255,255,.5)':color};width:${Math.round(((i+1)/item.nSlides)*100)}%;"></div>
+    </div>`;
+  }).join('');
+
+  const date = new Date(item.createdAt).toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+  return `<div class="h-card" onclick="openModal('${item.id}')">
+    <div class="h-card-thumb">${thumbs}</div>
+    <div class="h-card-body">
+      <div class="h-card-title">${item.topic}</div>
+      <div class="h-card-meta">
+        <span>${date}</span><div class="dot"></div>
+        <span>${item.nSlides} slides</span>
+        ${item.niche ? `<div class="dot"></div><span>${item.niche}</span>` : ''}
+      </div>
+      <div class="h-card-actions">
+        <button class="hc-btn open" onclick="event.stopPropagation();openModal('${item.id}')">Ver slides</button>
+        <button class="hc-btn" onclick="event.stopPropagation();downloadItem('${item.id}')">↓ HTML</button>
+        <button class="hc-btn del" onclick="event.stopPropagation();deleteItem('${item.id}')">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── MODAL ──
+function openModal(id) {
+  loadHistory();
+  const item = _history.find(h => h.id === id);
+  if (!item) return;
+  _currentItem = item;
+  document.getElementById('modalTitle').textContent = item.topic;
+  const slideList = item.slides.map((s, i) => `<div class="modal-slide"><div class="ms-num">Slide ${i+1} · ${s.tag||''}</div><div class="ms-title">${s.title||''}</div><div class="ms-body">${s.body||''}</div></div>`).join('');
+  document.getElementById('modalSlides').innerHTML = slideList;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(e) { if (e.target === document.getElementById('modalBg')) document.getElementById('modalBg').classList.remove('open'); }
+
+function exportCurrent() {
+  if (!_currentItem || !_currentItem.html) { showToast('HTML não disponível para este item'); return; }
+  const blob = new Blob([_currentItem.html], { type: 'text/html' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `carousel_${_currentItem.topic.slice(0,30).replace(/\s/g,'_')}.html`; a.click();
+}
+function downloadItem(id) {
+  loadHistory();
+  const item = _history.find(h => h.id === id);
+  if (!item || !item.html) { showToast('HTML não disponível'); return; }
+  const blob = new Blob([item.html], { type: 'text/html' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `carousel_${item.topic.slice(0,30).replace(/\s/g,'_')}.html`; a.click();
+}
+function deleteItem(id) {
+  loadHistory();
+  _history = _history.filter(h => h.id !== id);
+  saveHistory(); renderAll(); showToast('Carrossel removido');
+}
+function clearAll() {
+  if (!confirm('Remover todo o histórico?')) return;
+  _history = []; saveHistory(); renderAll(); showToast('Histórico limpo');
+}
+
+// ── DEMO DATA ──
+function addDemo() {
+  const demos = [
+    { topic:'Os 5 erros mais comuns de quem quer emagrecer', niche:'Personal Trainer', handle:'lucasferrazamorim', color:'#2DBD6E', nSlides:7 },
+    { topic:'Como a musculação melhora a performance na dança', niche:'Personal Trainer', handle:'lucasferrazamorim', color:'#2DBD6E', nSlides:8 },
+    { topic:'Guia de hidratação para corredores', niche:'Personal Trainer', handle:'lucasferrazamorim', color:'#2DBD6E', nSlides:5 },
+    { topic:'Novas diretrizes ACSM 2026 para treino de força', niche:'Personal Trainer', handle:'lucasferrazamorim', color:'#2DBD6E', nSlides:10 },
+  ];
+  const d = demos[Math.floor(Math.random() * demos.length)];
+  const demoSlides = Array.from({ length: d.nSlides }, (_, i) => ({
+    tag: i===0?'PARA INICIANTES':i===d.nSlides-1?'CTA':`DICA ${i}`,
+    title: i===0?d.topic:i===d.nSlides-1?`Quer um programa personalizado?`:`Ponto ${i} sobre ${d.topic.split(' ').slice(0,3).join(' ')}`,
+    body: 'Texto de exemplo do slide gerado pela IA com conteúdo relevante ao tema.',
+    items: i%2===0?['Item de lista exemplo 1','Item de lista exemplo 2']:[],
+    cta: i===d.nSlides-1?'Fale no WhatsApp':null
+  }));
+  window.saveCarousel({ ...d, slides: demoSlides, html: '' });
+}
+
+// ── COLOR UTILS ──
+function hexToRgb(hex){const h=hex.replace('#','');return{r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)};}
+function lighten(hex,amt){const{r,g,b}=hexToRgb(hex);return'#'+[r,g,b].map(v=>Math.min(255,Math.round(v+(255-v)*amt)).toString(16).padStart(2,'0')).join('');}
+function darken(hex,amt){const{r,g,b}=hexToRgb(hex);return'#'+[r,g,b].map(v=>Math.max(0,Math.round(v*(1-amt))).toString(16).padStart(2,'0')).join('');}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+renderAll();
+</script>
+<script src="shared.js"></script>
+
+  </div>
+</div>
+
+<script>if(typeof loadProfileSidebar!=="undefined")loadProfileSidebar();</script>
+</body>
+</html>

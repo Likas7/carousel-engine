@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Legenda + Hashtags</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: #F5F5F5; min-height: 100vh; display: flex; justify-content: center; padding: 2rem 1rem 4rem; }
+  .container { width: 100%; max-width: 600px; }
+  .header { margin-bottom: 2rem; }
+  .header h1 { font-size: 22px; font-weight: 700; color: #0D1710; margin-bottom: 4px; }
+  .header p { font-size: 14px; color: #6B7B6F; line-height: 1.5; }
+  .card { background: #fff; border-radius: 16px; border: 1px solid #E5EDE8; padding: 1.5rem; margin-bottom: 1rem; }
+  .field { margin-bottom: 1.1rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: #6B7B6F; margin-bottom: 6px; letter-spacing: 0.3px; }
+  .field input, .field textarea { width: 100%; padding: 10px 13px; border-radius: 10px; border: 1px solid #D8E5DC; background: #FAFCFB; color: #0D1710; font-size: 14px; font-family: 'Space Grotesk', sans-serif; resize: vertical; transition: border-color 0.15s; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: #2DBD6E; background: #fff; }
+  .field textarea { min-height: 80px; }
+  .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .style-btn { padding: 10px 12px; border-radius: 10px; border: 1px solid #D8E5DC; background: #FAFCFB; cursor: pointer; font-size: 13px; color: #5A6A60; font-family: 'Space Grotesk', sans-serif; text-align: left; transition: all 0.15s; }
+  .style-btn.sel { border-color: #2DBD6E; background: #EDF9F3; color: #1A8A4A; font-weight: 600; }
+  .gen-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; background: #2DBD6E; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; margin-top: 0.5rem; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .gen-btn:hover { background: #24A660; }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .result-card { background: #fff; border-radius: 16px; border: 1px solid #E5EDE8; padding: 1.5rem; margin-top: 1rem; display: none; }
+  .section-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .section-label { font-size: 11px; font-weight: 700; color: #A0B0A5; text-transform: uppercase; letter-spacing: 1.2px; }
+  .copy-btn { font-size: 12px; padding: 4px 12px; border-radius: 99px; border: 1px solid #D8E5DC; background: #fff; cursor: pointer; color: #6B7B6F; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; }
+  .copy-btn:hover { border-color: #2DBD6E; color: #1A8A4A; }
+  .copy-btn.ok { border-color: #2DBD6E; color: #1A8A4A; background: #EDF9F3; }
+  .caption-ta { width: 100%; min-height: 140px; padding: 12px 14px; border-radius: 12px; border: 1px solid #D8E5DC; background: #FAFCFB; color: #0D1710; font-size: 14px; line-height: 1.7; font-family: 'Space Grotesk', sans-serif; resize: vertical; }
+  .caption-ta:focus { outline: none; border-color: #2DBD6E; }
+  .divider { height: 1px; background: #EEF4F0; margin: 1.25rem 0; }
+  .ht-wrap { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px; border-radius: 12px; border: 1px solid #D8E5DC; background: #FAFCFB; min-height: 52px; }
+  .ht { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; padding: 5px 11px; border-radius: 99px; background: #F2F7F4; border: 1px solid #D8E5DC; color: #5A6A60; cursor: pointer; transition: all 0.12s; user-select: none; }
+  .ht:hover { border-color: #FFAAAA; color: #CC4444; }
+  .ht.on { background: #EDF9F3; border-color: rgba(45,189,110,.5); color: #1A8A4A; }
+  .ht-count { font-size: 12px; color: #A0B0A5; margin-top: 7px; }
+  .ht-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .ht-act { flex: 1; padding: 9px; border-radius: 10px; border: 1px solid #D8E5DC; background: #fff; color: #5A6A60; font-size: 13px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; }
+  .ht-act:hover { border-color: #2DBD6E; color: #1A8A4A; background: #EDF9F3; }
+  .ht-act.green { background: #2DBD6E; color: #fff; border-color: #2DBD6E; font-weight: 600; }
+  .ht-act.green:hover { background: #24A660; }
+  .ht-act.green.ok { background: #1A8A4A; }
+  .regen-btn { width: 100%; padding: 11px; border-radius: 12px; border: 1px solid #D8E5DC; background: #FAFCFB; color: #5A6A60; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'Space Grotesk', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; }
+  .regen-btn:hover { border-color: #2DBD6E; color: #1A8A4A; background: #EDF9F3; }
+</style>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-dot">C</div>
+    <div><div class="logo-text">Carousel Engine</div><div class="logo-sub">Painel de criação</div></div>
+  </div>
+  <div class="nav-section"><a href="index.html" class="nav-item "><span class="nav-icon">🏠</span>Dashboard</a><a href="engine.html" class="nav-item "><span class="nav-icon">✨</span>Criar Carrossel</a><a href="caption.html" class="nav-item active"><span class="nav-icon">✍️</span>Legenda + Hashtags</a><a href="library.html" class="nav-item "><span class="nav-icon">📚</span>Biblioteca de Temas</a><div class="nav-label" style="margin-top:8px;">Gestão</div><a href="clients.html" class="nav-item "><span class="nav-icon">👥</span>Clientes</a><a href="history.html" class="nav-item "><span class="nav-icon">🕐</span>Histórico</a></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-client" id="sidebarClient"></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Legenda + Hashtags</span>
+    <div class="topbar-actions">
+      <a href="engine.html" class="btn primary sm">✨ Criar carrossel</a>
+    </div>
+  </div>
+  <div class="content" style="max-width:700px;">
+
+<div class="container">
+  <div class="header">
+    <h1>✍️ Gerador de Legenda + Hashtags</h1>
+    <p>Preencha os dados do seu carrossel e gere a legenda completa pronta para o Instagram.</p>
+  </div>
+
+  <div class="card">
+    <div class="field"><label>Tema do carrossel</label><input type="text" id="fTopic" placeholder="Ex: Os 5 erros mais comuns de quem quer emagrecer"></div>
+    <div class="field"><label>Handle do Instagram</label><input type="text" id="fHandle" placeholder="@lucasferrazamorim"></div>
+    <div class="field"><label>Nicho / segmento</label><input type="text" id="fNiche" placeholder="Ex: Personal Trainer, Nutricionista, Coach..."></div>
+    <div class="field"><label>Resumo dos slides (opcional — melhora muito o resultado)</label><textarea id="fSlides" placeholder="Slide 1: título do primeiro slide&#10;Slide 2: título do segundo slide&#10;..."></textarea></div>
+    <div class="field">
+      <label>Estilo da legenda</label>
+      <div class="style-grid">
+        <button class="style-btn sel" data-v="Engajamento — termine com pergunta que gera comentários" onclick="selStyle(this)">💬 Engajamento</button>
+        <button class="style-btn" data-v="Storytelling — comece com uma situação real ou história" onclick="selStyle(this)">📖 Storytelling</button>
+        <button class="style-btn" data-v="Direto ao ponto — informativo, sem rodeios" onclick="selStyle(this)">⚡ Direto ao ponto</button>
+        <button class="style-btn" data-v="Provocativo — começa com afirmação que gera debate" onclick="selStyle(this)">🔥 Provocativo</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()"><span id="genIcon">✨</span> Gerar legenda com IA</button>
+
+  <div class="result-card" id="resultCard">
+    <div class="section-row">
+      <span class="section-label">Legenda</span>
+      <button class="copy-btn" id="cpCap" onclick="copyCap()">Copiar</button>
+    </div>
+    <textarea class="caption-ta" id="capText"></textarea>
+
+    <div class="divider"></div>
+
+    <div class="section-row">
+      <span class="section-label">Hashtags</span>
+      <button class="copy-btn" id="cpSel" onclick="copySel()">Copiar selecionados</button>
+    </div>
+    <div class="ht-wrap" id="htWrap"></div>
+    <div class="ht-count" id="htCount"></div>
+    <div class="ht-actions">
+      <button class="ht-act" onclick="selAll()">Todos</button>
+      <button class="ht-act" onclick="noneAll()">Nenhum</button>
+      <button class="ht-act green" id="cpAll" onclick="copyAll()">📋 Copiar legenda + hashtags</button>
+    </div>
+
+    <div class="divider"></div>
+    <button class="regen-btn" onclick="generate()">↻ Regenerar legenda</button>
+  </div>
+</div>
+
+<script>
+let _style = 'Engajamento — termine com pergunta que gera comentários';
+let _hashtags = [];
+
+function selStyle(btn) {
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel'); _style = btn.dataset.v;
+}
+
+async function generate() {
+  const topic  = document.getElementById('fTopic').value.trim();
+  const handle = document.getElementById('fHandle').value.trim();
+  const niche  = document.getElementById('fNiche').value.trim();
+  const slides = document.getElementById('fSlides').value.trim();
+  if (!topic) { alert('Digite o tema do carrossel antes de continuar.'); return; }
+
+  const btn = document.getElementById('genBtn'); btn.disabled = true;
+  document.getElementById('genIcon').outerHTML = '<span class="spinner" id="genIcon"></span>';
+
+  const prompt = `Você é especialista em copywriting para Instagram no Brasil.
+
+Crie uma legenda para um carrossel com:
+- Tema: "${topic}"
+- Perfil: ${handle||'@perfil'} · Nicho: ${niche||'saúde e bem-estar'}
+- Estilo: ${_style}
+${slides ? '\nConteúdo dos slides:\n' + slides : ''}
+
+Regras:
+- Máximo 150 palavras
+- Primeira linha prende atenção (sem emoji no início)
+- Use quebras de linha para respiração
+- Termine com CTA relevante
+- Use 1-3 emojis estratégicos no corpo
+- Tom natural, humano, brasileiro
+
+Gere também 20 hashtags: misture PT e EN, do mais específico ao mais geral. Sem repetir conceitos.
+
+Responda SOMENTE JSON sem markdown:
+{"caption":"texto","hashtags":["ht1","ht2"]}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 900, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const raw  = data.content?.find(b => b.type === 'text')?.text || '';
+    const p    = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    document.getElementById('capText').value = p.caption || '';
+    _hashtags = p.hashtags || [];
+    renderHt(true);
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) { alert('Erro: ' + e.message); }
+  finally {
+    const sp = document.getElementById('genIcon');
+    if (sp) sp.outerHTML = '<span id="genIcon">✨</span>';
+    btn.disabled = false;
+  }
+}
+
+function renderHt(allOn) {
+  const wrap = document.getElementById('htWrap');
+  const prev = [...wrap.children].map(c => c.classList.contains('on'));
+  wrap.innerHTML = _hashtags.map((ht, i) => {
+    const on = allOn ? true : (prev[i] !== undefined ? prev[i] : true);
+    return `<span class="ht${on?' on':''}" onclick="this.classList.toggle('on');updateCount()">#${ht.replace(/^#/,'')} <small>✕</small></span>`;
+  }).join('');
+  updateCount();
+}
+
+function updateCount() {
+  const sel = document.querySelectorAll('.ht.on').length;
+  document.getElementById('htCount').textContent = `${sel} de ${_hashtags.length} selecionados — clique para remover/adicionar`;
+}
+
+function selAll()  { document.querySelectorAll('.ht').forEach(h => h.classList.add('on')); updateCount(); }
+function noneAll() { document.querySelectorAll('.ht').forEach(h => h.classList.remove('on')); updateCount(); }
+
+async function copyCap() {
+  await navigator.clipboard.writeText(document.getElementById('capText').value).catch(() => {});
+  flash('cpCap', 'Copiado!', 'Copiar');
+}
+async function copySel() {
+  const tags = [...document.querySelectorAll('.ht.on')].map(h => '#' + h.textContent.replace('✕','').trim().replace(/^#/,'')).join(' ');
+  await navigator.clipboard.writeText(tags).catch(() => {});
+  flash('cpSel', 'Copiado!', 'Copiar selecionados');
+}
+async function copyAll() {
+  const cap  = document.getElementById('capText').value;
+  const tags = [...document.querySelectorAll('.ht.on')].map(h => '#' + h.textContent.replace('✕','').trim().replace(/^#/,'')).join(' ');
+  await navigator.clipboard.writeText(cap + '\n\n.\n.\n.\n' + tags).catch(() => {});
+  flash('cpAll', 'Copiado!', '📋 Copiar legenda + hashtags');
+}
+
+function flash(id, on, off) {
+  const btn = document.getElementById(id);
+  btn.textContent = on; btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = off; btn.classList.remove('ok'); }, 2200);
+}
+</script>
+<script src="shared.js"></script>
+
+  </div>
+</div>
+
+<script>if(typeof loadProfileSidebar!=="undefined")loadProfileSidebar();</script>
+</body>
+</html>

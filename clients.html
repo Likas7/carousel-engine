@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Clientes</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: #F2FAF5; min-height: 100vh; }
+
+  /* ── TOPBAR ── */
+  .topbar { background: #fff; border-bottom: 1px solid #E5EDE8; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 20; }
+  .tl { display: flex; align-items: center; gap: 10px; }
+  .tl .dot { width: 10px; height: 10px; border-radius: 50%; background: #2DBD6E; }
+  .tl span { font-size: 15px; font-weight: 700; color: #0D1710; }
+  .tr { display: flex; align-items: center; gap: 8px; }
+  .btn { padding: 8px 18px; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'Space Grotesk', sans-serif; border: 1px solid #D8E5DC; background: #fff; color: #3A4A3F; transition: all 0.15s; }
+  .btn:hover { background: #EDF9F3; border-color: #2DBD6E; color: #1A8A4A; }
+  .btn.primary { background: #2DBD6E; color: #fff; border-color: #2DBD6E; font-weight: 600; }
+  .btn.primary:hover { background: #24A660; }
+  .btn.danger { border-color: #FFBBBB; color: #CC3333; }
+  .btn.danger:hover { background: #FFF0F0; }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+  /* ── STATS ── */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .stat { background: #fff; border-radius: 14px; border: 1px solid #E5EDE8; padding: 1rem 1.25rem; }
+  .stat-n { font-size: 28px; font-weight: 700; color: #0D1710; line-height: 1; }
+  .stat-l { font-size: 12px; color: #6B7B6F; margin-top: 4px; }
+
+  /* ── FILTERS ── */
+  .filters { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 180px; }
+  .search-wrap .si { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.4; pointer-events: none; }
+  .search-wrap input { width: 100%; padding: 9px 12px 9px 34px; border-radius: 10px; border: 1px solid #D8E5DC; background: #fff; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #0D1710; }
+  .search-wrap input:focus { outline: none; border-color: #2DBD6E; }
+  .filter-sel { padding: 9px 12px; border-radius: 10px; border: 1px solid #D8E5DC; background: #fff; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #3A4A3F; cursor: pointer; }
+  .filter-sel:focus { outline: none; border-color: #2DBD6E; }
+
+  /* ── CLIENT GRID ── */
+  .client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+
+  /* ── CLIENT CARD ── */
+  .c-card { background: #fff; border-radius: 16px; border: 1px solid #E5EDE8; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+  .c-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .c-card-top { padding: 1.25rem 1.25rem 1rem; display: flex; align-items: flex-start; gap: 12px; }
+  .c-avatar { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; flex-shrink: 0; }
+  .c-avatar-ph { width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #fff; }
+  .c-info { flex: 1; min-width: 0; }
+  .c-name { font-size: 15px; font-weight: 700; color: #0D1710; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .c-handle { font-size: 12px; color: #6B7B6F; margin-bottom: 5px; }
+  .c-niche { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 99px; background: #EDF9F3; color: #1A8A4A; border: 1px solid rgba(45,189,110,.25); }
+  .c-status { display: flex; align-items: center; gap: 5px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .status-dot.active { background: #2DBD6E; }
+  .status-dot.pause { background: #F59E0B; }
+  .status-dot.inactive { background: #D1D5DB; }
+  .status-label { font-size: 11px; color: #6B7B6F; }
+
+  .c-divider { height: 1px; background: #F2F7F4; margin: 0 1.25rem; }
+
+  .c-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: .75rem 1.25rem; }
+  .c-metric { text-align: center; padding: .5rem 0; }
+  .c-metric-n { font-size: 18px; font-weight: 700; color: #0D1710; line-height: 1; }
+  .c-metric-l { font-size: 10px; color: #A0B0A5; margin-top: 3px; }
+  .c-metric:not(:last-child) { border-right: 1px solid #F2F7F4; }
+
+  .c-card-footer { padding: .9rem 1.25rem; background: #FAFCFB; border-top: 1px solid #F2F7F4; display: flex; gap: 7px; }
+  .cf-btn { flex: 1; padding: 7px 0; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Space Grotesk', sans-serif; border: 1px solid #D8E5DC; background: #fff; color: #3A4A3F; text-align: center; transition: all 0.15s; }
+  .cf-btn:hover { background: #EDF9F3; border-color: #2DBD6E; color: #1A8A4A; }
+  .cf-btn.open { background: #0D1710; color: #fff; border-color: #0D1710; font-weight: 600; }
+  .cf-btn.open:hover { background: #1a2e1e; }
+  .cf-btn.del { color: #CC3333; }
+  .cf-btn.del:hover { background: #FFF0F0; border-color: #FFBBBB; }
+
+  /* ── MODAL: ADD/EDIT CLIENT ── */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; overflow-y: auto; }
+  .modal-bg.open { display: flex; }
+  .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 500px; overflow: hidden; margin: auto; }
+  .modal-hdr { padding: 1.25rem 1.5rem; border-bottom: 1px solid #E5EDE8; display: flex; align-items: center; justify-content: space-between; }
+  .modal-hdr h3 { font-size: 16px; font-weight: 600; color: #0D1710; }
+  .modal-x { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #D8E5DC; background: #fff; cursor: pointer; font-size: 16px; color: #6B7B6F; display: flex; align-items: center; justify-content: center; }
+  .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .mf { }
+  .mf label { display: block; font-size: 12px; font-weight: 600; color: #6B7B6F; margin-bottom: 5px; }
+  .mf input, .mf select, .mf textarea { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1px solid #D8E5DC; background: #FAFCFB; font-size: 13px; font-family: 'Space Grotesk', sans-serif; color: #0D1710; }
+  .mf input:focus, .mf select:focus, .mf textarea:focus { outline: none; border-color: #2DBD6E; }
+  .mf textarea { min-height: 60px; resize: vertical; }
+  .mf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .color-row { display: flex; align-items: center; gap: 10px; }
+  .color-swatch { width: 36px; height: 36px; border-radius: 9px; border: 1px solid #D8E5DC; cursor: pointer; flex-shrink: 0; }
+  .color-picker-hidden { position: absolute; opacity: 0; width: 0; height: 0; }
+  .hex-wrap { position: relative; flex: 1; }
+  .hex-wrap .hash { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 13px; color: #A0B0A5; font-family: monospace; pointer-events: none; }
+  .hex-wrap input { padding-left: 22px; font-family: monospace; text-transform: uppercase; }
+  .logo-drop { border: 1.5px dashed #D8E5DC; border-radius: 12px; padding: 1rem; text-align: center; cursor: pointer; background: #FAFCFB; transition: border-color 0.2s; }
+  .logo-drop:hover { border-color: #2DBD6E; }
+  .logo-drop.has { border-style: solid; border-color: #2DBD6E; }
+  .logo-drop img { max-height: 52px; max-width: 160px; display: block; margin: 0 auto 6px; border-radius: 8px; }
+  .logo-drop p { font-size: 13px; color: #6B7B6F; }
+  .logo-drop small { font-size: 11px; color: #A0B0A5; }
+  .modal-ftr { padding: 1rem 1.5rem; border-top: 1px solid #E5EDE8; display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── CLIENT DETAIL MODAL ── */
+  .detail-modal { background: #fff; border-radius: 20px; width: 100%; max-width: 560px; overflow: hidden; margin: auto; }
+  .dm-cover { height: 80px; display: flex; align-items: flex-end; padding: 0 1.5rem 0; }
+  .dm-avatar-wrap { margin-bottom: -24px; }
+  .dm-avatar { width: 64px; height: 64px; border-radius: 16px; object-fit: cover; border: 3px solid #fff; }
+  .dm-avatar-ph { width: 64px; height: 64px; border-radius: 16px; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: #fff; }
+  .dm-body { padding: 2rem 1.5rem 1.5rem; }
+  .dm-name { font-size: 20px; font-weight: 700; color: #0D1710; margin-bottom: 2px; }
+  .dm-meta { font-size: 13px; color: #6B7B6F; margin-bottom: 12px; }
+  .dm-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .dm-tag { font-size: 12px; padding: 3px 10px; border-radius: 99px; background: #EDF9F3; color: #1A8A4A; border: 1px solid rgba(45,189,110,.25); }
+  .dm-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+  .dm-metric { background: #F8FCF9; border-radius: 12px; padding: 12px; text-align: center; border: 1px solid #E5EDE8; }
+  .dm-metric-n { font-size: 22px; font-weight: 700; color: #0D1710; }
+  .dm-metric-l { font-size: 11px; color: #6B7B6F; margin-top: 3px; }
+  .dm-notes { background: #F8FCF9; border-radius: 12px; padding: 12px 14px; border: 1px solid #E5EDE8; font-size: 13px; color: #3A4A3F; line-height: 1.55; }
+  .dm-notes-label { font-size: 11px; font-weight: 600; color: #A0B0A5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .dm-ftr { padding: 1rem 1.5rem; border-top: 1px solid #E5EDE8; display: flex; gap: 8px; }
+
+  /* ── EMPTY ── */
+  .empty { text-align: center; padding: 5rem 2rem; }
+  .empty-icon { font-size: 52px; opacity: 0.3; margin-bottom: 1rem; }
+  .empty h3 { font-size: 20px; font-weight: 700; color: #0D1710; margin-bottom: 8px; }
+  .empty p { font-size: 14px; color: #6B7B6F; line-height: 1.55; max-width: 320px; margin: 0 auto 1.5rem; }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px); background: #0D1710; color: #fff; padding: 10px 22px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 300; transition: transform 0.3s; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-dot">C</div>
+    <div><div class="logo-text">Carousel Engine</div><div class="logo-sub">Painel de criação</div></div>
+  </div>
+  <div class="nav-section"><a href="index.html" class="nav-item "><span class="nav-icon">🏠</span>Dashboard</a><a href="engine.html" class="nav-item "><span class="nav-icon">✨</span>Criar Carrossel</a><a href="caption.html" class="nav-item "><span class="nav-icon">✍️</span>Legenda + Hashtags</a><a href="library.html" class="nav-item "><span class="nav-icon">📚</span>Biblioteca de Temas</a><div class="nav-label" style="margin-top:8px;">Gestão</div><a href="clients.html" class="nav-item active"><span class="nav-icon">👥</span>Clientes</a><a href="history.html" class="nav-item "><span class="nav-icon">🕐</span>Histórico</a></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-client" id="sidebarClient"></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Gestão de Clientes</span>
+    <div class="topbar-actions">
+      <a href="engine.html" class="btn primary sm">✨ Criar carrossel</a>
+    </div>
+  </div>
+  <div class="content" style="max-width:700px;">
+
+
+<div class="topbar">
+  <div class="tl"><div class="dot"></div><span>Clientes</span></div>
+  <div class="tr">
+    <div class="search-wrap" style="width:220px;">
+      <span class="si">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar cliente..." oninput="render()">
+    </div>
+    <select class="filter-sel" id="filterStatus" onchange="render()">
+      <option value="">Todos os status</option>
+      <option value="active">Ativo</option>
+      <option value="pause">Pausado</option>
+      <option value="inactive">Inativo</option>
+    </select>
+    <button class="btn primary" onclick="openAdd()">+ Novo cliente</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="stats" id="statsBar"></div>
+  <div id="listWrap"></div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="formModal" onclick="closeFModal(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3 id="formTitle">Novo cliente</h3>
+      <button class="modal-x" onclick="document.getElementById('formModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mf-row">
+        <div class="mf"><label>Nome completo / Marca</label><input type="text" id="fName" placeholder="Ex: Lucas Amorim"></div>
+        <div class="mf"><label>Instagram (sem @)</label><input type="text" id="fHandle" placeholder="lucasferrazamorim"></div>
+      </div>
+      <div class="mf-row">
+        <div class="mf"><label>Nicho / segmento</label><input type="text" id="fNiche" placeholder="Personal Trainer"></div>
+        <div class="mf"><label>Status</label>
+          <select id="fStatus">
+            <option value="active">Ativo</option>
+            <option value="pause">Pausado</option>
+            <option value="inactive">Inativo</option>
+          </select>
+        </div>
+      </div>
+      <div class="mf"><label>Cor principal da marca</label>
+        <div class="color-row">
+          <div class="color-swatch" id="fSwatch" style="background:#2DBD6E;" onclick="document.getElementById('fPicker').click()"></div>
+          <input type="color" id="fPicker" class="color-picker-hidden" value="#2DBD6E">
+          <div class="hex-wrap"><span class="hash">#</span><input type="text" id="fHex" value="2DBD6E" maxlength="6"></div>
+        </div>
+      </div>
+      <div class="mf"><label>Logo (opcional)</label>
+        <div class="logo-drop" id="fLogoDrop" onclick="document.getElementById('fLogoFile').click()">
+          <p>Clique para enviar o logo</p><small>PNG ou JPG</small>
+        </div>
+        <input type="file" id="fLogoFile" accept="image/*" style="display:none">
+      </div>
+      <div class="mf"><label>Anotações internas (visível só para você)</label>
+        <textarea id="fNotes" placeholder="Ex: cliente paga todo dia 5, prefere carrosséis técnicos, tem podcast semanal..."></textarea>
+      </div>
+      <div class="mf-row">
+        <div class="mf"><label>Carrosséis/mês contratados</label><input type="number" id="fPlan" min="0" placeholder="8"></div>
+        <div class="mf"><label>Valor mensal (R$)</label><input type="number" id="fValue" min="0" placeholder="500"></div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn" onclick="document.getElementById('formModal').classList.remove('open')">Cancelar</button>
+      <button class="btn primary" onclick="saveClient()">Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="detailModal" onclick="closeDModal(event)">
+  <div class="detail-modal">
+    <div class="dm-cover" id="dmCover">
+      <div class="dm-avatar-wrap" id="dmAvatarWrap"></div>
+    </div>
+    <div class="dm-body">
+      <div class="dm-name" id="dmName"></div>
+      <div class="dm-meta" id="dmMeta"></div>
+      <div class="dm-tags" id="dmTags"></div>
+      <div class="dm-metrics" id="dmMetrics"></div>
+      <div id="dmNotesWrap" style="display:none">
+        <div class="dm-notes-label">Anotações</div>
+        <div class="dm-notes" id="dmNotes"></div>
+      </div>
+    </div>
+    <div class="dm-ftr">
+      <button class="btn" onclick="document.getElementById('detailModal').classList.remove('open')">Fechar</button>
+      <button class="btn" onclick="editFromDetail()">Editar</button>
+      <button class="btn primary" onclick="useClientInEngine()">Abrir na Engine →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'carousel_clients_v1';
+let _clients = [];
+let _editId   = null;
+let _detailId = null;
+let _logoB64  = '';
+
+// ── STORAGE ──
+function load()  { try { _clients = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { _clients = []; } }
+function save()  { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(_clients)); } catch(e) { console.warn(e); } }
+
+// ── STATS ──
+function renderStats() {
+  const total    = _clients.length;
+  const active   = _clients.filter(c => c.status === 'active').length;
+  const mrr      = _clients.filter(c => c.status === 'active').reduce((a,c) => a + (Number(c.value)||0), 0);
+  const carousel = _clients.reduce((a,c) => a + (c.carousels||0), 0);
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="stat-n">${total}</div><div class="stat-l">Clientes cadastrados</div></div>
+    <div class="stat"><div class="stat-n">${active}</div><div class="stat-l">Clientes ativos</div></div>
+    <div class="stat"><div class="stat-n">${carousel}</div><div class="stat-l">Carrosséis criados</div></div>
+    <div class="stat"><div class="stat-n">R$&thinsp;${mrr.toLocaleString('pt-BR')}</div><div class="stat-l">MRR (receita mensal)</div></div>`;
+}
+
+// ── RENDER LIST ──
+function render() {
+  load();
+  renderStats();
+  const q   = document.getElementById('searchInput').value.toLowerCase();
+  const st  = document.getElementById('filterStatus').value;
+  let items = _clients.filter(c => {
+    const mQ  = !q || c.name.toLowerCase().includes(q) || (c.handle||'').toLowerCase().includes(q) || (c.niche||'').toLowerCase().includes(q);
+    const mSt = !st || c.status === st;
+    return mQ && mSt;
+  });
+
+  const wrap = document.getElementById('listWrap');
+  if (!items.length) {
+    wrap.innerHTML = _clients.length === 0
+      ? `<div class="empty"><div class="empty-icon">👥</div><h3>Nenhum cliente ainda</h3><p>Cadastre seu primeiro cliente para começar a gerenciar sua base.</p><button class="btn primary" onclick="openAdd()">+ Cadastrar primeiro cliente</button></div>`
+      : `<div class="empty"><div class="empty-icon">🔍</div><h3>Nenhum resultado</h3><p>Tente outro termo de busca ou mude o filtro de status.</p></div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div class="client-grid">${items.map(c => cardHTML(c)).join('')}</div>`;
+}
+
+// ── CARD HTML ──
+function cardHTML(c) {
+  const color  = '#' + (c.hex || '2DBD6E');
+  const initials = (c.name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const avatar = c.logo
+    ? `<img class="c-avatar" src="${c.logo}" alt="${c.name}">`
+    : `<div class="c-avatar-ph" style="background:${color}">${initials}</div>`;
+  const stMap  = { active:['active','Ativo'], pause:['pause','Pausado'], inactive:['inactive','Inativo'] };
+  const [stCls, stLbl] = stMap[c.status] || ['inactive','—'];
+  const used   = c.carousels || 0;
+  const plan   = c.plan || 0;
+  const pct    = plan > 0 ? Math.min(100, Math.round((used/plan)*100)) : 0;
+  return `<div class="c-card">
+    <div class="c-card-top">
+      ${avatar}
+      <div class="c-info">
+        <div class="c-name">${c.name}</div>
+        <div class="c-handle">@${c.handle||'—'}</div>
+        <div class="c-status">
+          <div class="status-dot ${stCls}"></div>
+          <span class="status-label">${stLbl}</span>
+          ${c.niche ? `&nbsp;·&nbsp;<span class="c-niche">${c.niche}</span>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="c-divider"></div>
+    <div class="c-metrics">
+      <div class="c-metric"><div class="c-metric-n">${used}</div><div class="c-metric-l">Carrosséis</div></div>
+      <div class="c-metric"><div class="c-metric-n">${plan||'—'}</div><div class="c-metric-l">Plano/mês</div></div>
+      <div class="c-metric"><div class="c-metric-n">${c.value ? 'R$'+Number(c.value).toLocaleString('pt-BR') : '—'}</div><div class="c-metric-l">Mensalidade</div></div>
+    </div>
+    ${plan > 0 ? `<div style="padding:0 1.25rem .75rem;"><div style="height:4px;background:#F2F7F4;border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${pct>=100?'#F59E0B':'#2DBD6E'};border-radius:99px;transition:width .4s;"></div></div><div style="font-size:11px;color:#A0B0A5;margin-top:4px;">${used} de ${plan} carrosséis usados este mês</div></div>` : ''}
+    <div class="c-card-footer">
+      <button class="cf-btn open" onclick="openDetail('${c.id}')">Ver perfil</button>
+      <button class="cf-btn" onclick="openEdit('${c.id}')">Editar</button>
+      <button class="cf-btn" onclick="addCarousel('${c.id}')">+1 Carrossel</button>
+      <button class="cf-btn del" onclick="deleteClient('${c.id}')">✕</button>
+    </div>
+  </div>`;
+}
+
+// ── FORM MODAL ──
+const fPicker = document.getElementById('fPicker');
+const fHex    = document.getElementById('fHex');
+const fSwatch = document.getElementById('fSwatch');
+
+function applyColor(hex) { const h=hex.toUpperCase(); fSwatch.style.background='#'+h; fHex.value=h; fPicker.value='#'+h; }
+fPicker.addEventListener('input', () => applyColor(fPicker.value.slice(1)));
+fHex.addEventListener('input', function() {
+  const v=this.value.replace(/[^0-9A-Fa-f]/g,'').slice(0,6).toUpperCase(); this.value=v;
+  if(v.length===6){fSwatch.style.background='#'+v; fPicker.value='#'+v;}
+});
+document.getElementById('fLogoFile').addEventListener('change', function(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader(); r.onload=ev=>{
+    _logoB64=ev.target.result;
+    const d=document.getElementById('fLogoDrop');
+    d.innerHTML=`<img src="${_logoB64}" alt="logo"><p style="font-size:12px;">${file.name}</p>`;
+    d.classList.add('has');
+  }; r.readAsDataURL(file);
+});
+
+function clearForm() {
+  ['fName','fHandle','fNiche','fPlan','fValue','fNotes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('fStatus').value='active';
+  applyColor('2DBD6E');
+  _logoB64='';
+  const drop=document.getElementById('fLogoDrop');
+  drop.innerHTML='<p>Clique para enviar o logo</p><small>PNG ou JPG</small>';
+  drop.classList.remove('has');
+  _editId=null;
+}
+
+function openAdd() {
+  clearForm();
+  document.getElementById('formTitle').textContent='Novo cliente';
+  document.getElementById('formModal').classList.add('open');
+}
+
+function openEdit(id) {
+  load();
+  const c=_clients.find(x=>x.id===id); if(!c) return;
+  _editId=id;
+  document.getElementById('formTitle').textContent='Editar cliente';
+  document.getElementById('fName').value=c.name||'';
+  document.getElementById('fHandle').value=c.handle||'';
+  document.getElementById('fNiche').value=c.niche||'';
+  document.getElementById('fStatus').value=c.status||'active';
+  document.getElementById('fPlan').value=c.plan||'';
+  document.getElementById('fValue').value=c.value||'';
+  document.getElementById('fNotes').value=c.notes||'';
+  applyColor(c.hex||'2DBD6E');
+  _logoB64=c.logo||'';
+  const drop=document.getElementById('fLogoDrop');
+  if(_logoB64){ drop.innerHTML=`<img src="${_logoB64}" alt="logo"><p style="font-size:12px;">Logo carregado</p>`; drop.classList.add('has'); }
+  else { drop.innerHTML='<p>Clique para enviar o logo</p><small>PNG ou JPG</small>'; drop.classList.remove('has'); }
+  document.getElementById('formModal').classList.add('open');
+}
+
+function saveClient() {
+  const name=document.getElementById('fName').value.trim();
+  if(!name){alert('Digite o nome do cliente.');return;}
+  load();
+  const client = {
+    id:       _editId || Date.now().toString(),
+    name,
+    handle:   document.getElementById('fHandle').value.trim(),
+    niche:    document.getElementById('fNiche').value.trim(),
+    status:   document.getElementById('fStatus').value,
+    hex:      fHex.value||'2DBD6E',
+    logo:     _logoB64||'',
+    notes:    document.getElementById('fNotes').value.trim(),
+    plan:     Number(document.getElementById('fPlan').value)||0,
+    value:    Number(document.getElementById('fValue').value)||0,
+    carousels:_editId ? (_clients.find(c=>c.id===_editId)?.carousels||0) : 0,
+    createdAt:_editId ? (_clients.find(c=>c.id===_editId)?.createdAt||new Date().toISOString()) : new Date().toISOString(),
+  };
+  if(_editId) { _clients=_clients.map(c=>c.id===_editId?client:c); }
+  else { _clients.unshift(client); }
+  save(); render();
+  document.getElementById('formModal').classList.remove('open');
+  showToast(_editId?'Cliente atualizado ✓':'Cliente cadastrado ✓');
+}
+
+function closeFModal(e) { if(e.target===document.getElementById('formModal'))document.getElementById('formModal').classList.remove('open'); }
+
+// ── DETAIL MODAL ──
+function openDetail(id) {
+  load();
+  const c=_clients.find(x=>x.id===id); if(!c) return;
+  _detailId=id;
+  const color='#'+(c.hex||'2DBD6E');
+  const initials=(c.name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  document.getElementById('dmCover').style.background=`linear-gradient(135deg,${darken(color,.4)} 0%,${color} 100%)`;
+  const avatarEl=c.logo
+    ?`<img class="dm-avatar" src="${c.logo}" alt="${c.name}">`
+    :`<div class="dm-avatar-ph" style="background:${color}">${initials}</div>`;
+  document.getElementById('dmAvatarWrap').innerHTML=avatarEl;
+  document.getElementById('dmName').textContent=c.name;
+  document.getElementById('dmMeta').textContent=`@${c.handle||'—'} · Cadastrado em ${new Date(c.createdAt).toLocaleDateString('pt-BR')}`;
+  const stLbl={active:'✅ Ativo',pause:'⏸ Pausado',inactive:'⚫ Inativo'}[c.status]||'—';
+  document.getElementById('dmTags').innerHTML=`
+    ${c.niche?`<span class="dm-tag">${c.niche}</span>`:''}
+    <span class="dm-tag">${stLbl}</span>
+    ${c.value?`<span class="dm-tag">R$ ${Number(c.value).toLocaleString('pt-BR')}/mês</span>`:''}`;
+  document.getElementById('dmMetrics').innerHTML=`
+    <div class="dm-metric"><div class="dm-metric-n">${c.carousels||0}</div><div class="dm-metric-l">Carrosséis criados</div></div>
+    <div class="dm-metric"><div class="dm-metric-n">${c.plan||'—'}</div><div class="dm-metric-l">Carrosséis/mês</div></div>
+    <div class="dm-metric"><div class="dm-metric-n">${c.plan>0?Math.min(100,Math.round(((c.carousels||0)/c.plan)*100))+'%':'—'}</div><div class="dm-metric-l">Uso do plano</div></div>`;
+  if(c.notes){document.getElementById('dmNotes').textContent=c.notes;document.getElementById('dmNotesWrap').style.display='block';}
+  else{document.getElementById('dmNotesWrap').style.display='none';}
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeDModal(e){if(e.target===document.getElementById('detailModal'))document.getElementById('detailModal').classList.remove('open');}
+function editFromDetail(){document.getElementById('detailModal').classList.remove('open');openEdit(_detailId);}
+function useClientInEngine(){
+  load();const c=_clients.find(x=>x.id===_detailId);if(!c)return;
+  const params=new URLSearchParams({name:c.name,handle:c.handle,niche:c.niche,hex:c.hex,logo:c.logo});
+  const w=window.open(`carousel_engine.html?${params}`, '_blank');
+  if(!w||w.closed) showToast('Abra a engine e selecione o perfil: '+c.name);
+  else showToast('Abrindo engine com perfil de '+c.name);
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+// ── ACTIONS ──
+function addCarousel(id){
+  load();const idx=_clients.findIndex(c=>c.id===id);if(idx<0)return;
+  _clients[idx].carousels=(_clients[idx].carousels||0)+1;
+  save();render();showToast('+1 carrossel registrado');
+}
+function deleteClient(id){
+  if(!confirm('Remover este cliente?'))return;
+  load();_clients=_clients.filter(c=>c.id!==id);save();render();showToast('Cliente removido');
+}
+
+// ── DEMO DATA ──
+function seedDemo(){
+  if(_clients.length>0)return;
+  const demo=[
+    {id:'d1',name:'Lucas Amorim',handle:'lucasferrazamorim',niche:'Personal Trainer',status:'active',hex:'2DBD6E',logo:'',notes:'Prefere carrosséis técnicos com base científica. Paga dia 5.',plan:8,value:500,carousels:5,createdAt:'2026-02-01T00:00:00Z'},
+    {id:'d2',name:'Ana Nutrição',handle:'ana.nutri',niche:'Nutricionista',status:'active',hex:'F59E0B',logo:'',notes:'Quer 2 carrosséis por semana. Prefere tom acessível.',plan:8,value:450,carousels:7,createdAt:'2026-01-15T00:00:00Z'},
+    {id:'d3',name:'Dr. Marcos Saúde',handle:'drmarcos.saude',niche:'Médico',status:'pause',hex:'3B82F6',logo:'',notes:'Pausado em março — viagem. Retorna em maio.',plan:4,value:350,carousels:2,createdAt:'2026-01-20T00:00:00Z'},
+    {id:'d4',name:'Fernanda Coach',handle:'fer.coach',niche:'Coach',status:'active',hex:'A855F7',logo:'',notes:'',plan:6,value:400,carousels:6,createdAt:'2026-03-01T00:00:00Z'},
+  ];
+  _clients=demo;save();
+}
+
+// ── COLOR UTIL ──
+function darken(hex,amt){const h=hex.replace('#','');const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);return'#'+[r,g,b].map(v=>Math.max(0,Math.round(v*(1-amt))).toString(16).padStart(2,'0')).join('');}
+
+// ── TOAST ──
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ── INIT ──
+load();
+if(_clients.length===0) seedDemo();
+render();
+</script>
+<script src="shared.js"></script>
+
+  </div>
+</div>
+
+<script>if(typeof loadProfileSidebar!=="undefined")loadProfileSidebar();</script>
+</body>
+</html>

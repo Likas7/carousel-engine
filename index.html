@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Carousel Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .welcome-card { background: linear-gradient(135deg, #0D1710 0%, #1a3520 100%); border-radius: 20px; padding: 2rem; color: #fff; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+  .wc-deco { position: absolute; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(45,189,110,.18) 0%, transparent 70%); top: -80px; right: -60px; pointer-events: none; }
+  .wc-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .wc-sub { font-size: 14px; color: rgba(255,255,255,.65); margin-bottom: 1.5rem; line-height: 1.5; }
+  .wc-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .wc-btn { padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .wc-btn.green { background: #2DBD6E; color: #fff; }
+  .wc-btn.green:hover { background: #24A660; }
+  .wc-btn.outline { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+  .wc-btn.outline:hover { background: rgba(255,255,255,.18); }
+
+  .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .quick-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); padding: 1.25rem; display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; transition: all 0.15s; cursor: pointer; }
+  .quick-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); transform: translateY(-2px); border-color: var(--brand); }
+  .qc-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .qc-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .qc-sub { font-size: 12px; color: var(--text-3); }
+
+  .recent-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+  .recent-title a { font-size: 12px; font-weight: 500; color: var(--brand-dark); text-decoration: none; }
+  .recent-list { display: flex; flex-direction: column; gap: 8px; }
+  .recent-item { background: #fff; border-radius: 12px; border: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .ri-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .ri-topic { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ri-meta { font-size: 11px; color: var(--text-4); white-space: nowrap; }
+  .ri-slides { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--light-bg); color: var(--brand-dark); border: 1px solid rgba(45,189,110,.2); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-dot">C</div>
+    <div><div class="logo-text">Carousel Engine</div><div class="logo-sub">Painel de criação</div></div>
+  </div>
+  <div class="nav-section" id="navItems"></div>
+  <div class="sidebar-footer">
+    <div class="sidebar-client" id="sidebarClient"></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Dashboard</span>
+    <div class="topbar-actions">
+      <a href="engine.html" class="btn primary">✨ Criar carrossel</a>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-row cols-4" id="statsRow"></div>
+
+    <!-- WELCOME -->
+    <div class="welcome-card">
+      <div class="wc-deco"></div>
+      <div class="wc-title" id="welcomeTitle">Bom trabalho! 🎯</div>
+      <div class="wc-sub" id="welcomeSub">Seu estúdio de criação de carrosséis está pronto. Escolha uma ação abaixo para começar.</div>
+      <div class="wc-actions">
+        <a href="engine.html" class="wc-btn green">✨ Criar novo carrossel</a>
+        <a href="library.html" class="wc-btn outline">📚 Ver temas prontos</a>
+        <a href="clients.html" class="wc-btn outline">👥 Gerenciar clientes</a>
+      </div>
+    </div>
+
+    <!-- QUICK ACCESS -->
+    <div class="quick-grid">
+      <a href="engine.html" class="quick-card">
+        <div class="qc-icon" style="background:#EDF9F3;">✨</div>
+        <div><div class="qc-title">Criar Carrossel</div><div class="qc-sub">Gere com IA e exporte em PNG</div></div>
+      </a>
+      <a href="caption.html" class="quick-card">
+        <div class="qc-icon" style="background:#EFF6FF;">✍️</div>
+        <div><div class="qc-title">Legenda + Hashtags</div><div class="qc-sub">Texto pronto para o Instagram</div></div>
+      </a>
+      <a href="library.html" class="quick-card">
+        <div class="qc-icon" style="background:#FFF7ED;">📚</div>
+        <div><div class="qc-title">Biblioteca de Temas</div><div class="qc-sub">38 ideias prontas por nicho</div></div>
+      </a>
+      <a href="clients.html" class="quick-card">
+        <div class="qc-icon" style="background:#F5F0FF;">👥</div>
+        <div><div class="qc-title">Clientes</div><div class="qc-sub">Gerencie sua base e MRR</div></div>
+      </a>
+    </div>
+
+    <!-- RECENT -->
+    <div class="recent-title">Criados recentemente <a href="history.html">Ver todos →</a></div>
+    <div class="recent-list" id="recentList"></div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="shared.js"></script>
+<script>
+  // NAV
+  const NAV = [
+    { href:'index.html', icon:'🏠', label:'Dashboard' },
+    { href:'engine.html', icon:'✨', label:'Criar Carrossel' },
+    { href:'caption.html', icon:'✍️', label:'Legenda + Hashtags' },
+    { href:'library.html', icon:'📚', label:'Biblioteca de Temas' },
+    { sep:true, label:'Gestão' },
+    { href:'clients.html', icon:'👥', label:'Clientes' },
+    { href:'history.html', icon:'🕐', label:'Histórico' },
+  ];
+  function buildNav() {
+    const history = store.get(KEYS.history) || [];
+    const clients = store.get(KEYS.clients) || [];
+    document.getElementById('navItems').innerHTML = NAV.map(n => {
+      if (n.sep) return `<div class="nav-label" style="margin-top:8px;">${n.label}</div>`;
+      const active = n.href === 'index.html';
+      const badge  = n.href==='clients.html' && clients.length ? `<span class="nav-badge">${clients.length}</span>` : n.href==='history.html' && history.length ? `<span class="nav-badge">${history.length}</span>` : '';
+      return `<a href="${n.href}" class="nav-item${active?' active':''}"><span class="nav-icon">${n.icon}</span>${n.label}${badge}</a>`;
+    }).join('');
+  }
+
+  function render() {
+    const history = store.get(KEYS.history) || [];
+    const clients = store.get(KEYS.clients) || [];
+    const activeClients = clients.filter(c => c.status === 'active');
+    const mrr = activeClients.reduce((a,c) => a+(Number(c.value)||0), 0);
+    const totalSlides = history.reduce((a,c) => a+(c.nSlides||0), 0);
+
+    // stats
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-box"><div class="n">${history.length}</div><div class="l">Carrosséis criados</div></div>
+      <div class="stat-box"><div class="n">${totalSlides}</div><div class="l">Slides gerados</div></div>
+      <div class="stat-box"><div class="n">${clients.length}</div><div class="l">Clientes</div></div>
+      <div class="stat-box"><div class="n">R$&thinsp;${mrr.toLocaleString('pt-BR')}</div><div class="l">MRR</div></div>`;
+
+    // welcome
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+    const profile = store.get(KEYS.profile);
+    document.getElementById('welcomeTitle').textContent = `${greet}${profile?.brandName ? ', ' + profile.brandName.split(' ')[0] : ''}! 🎯`;
+
+    // recent
+    const recent = history.slice(0, 5);
+    const rl = document.getElementById('recentList');
+    if (!recent.length) {
+      rl.innerHTML = `<div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:1.5rem;text-align:center;color:var(--text-3);font-size:13px;">Nenhum carrossel criado ainda. <a href="engine.html" style="color:var(--brand-dark);">Criar agora →</a></div>`;
+      return;
+    }
+    rl.innerHTML = recent.map(h => {
+      const color = h.color || '#2DBD6E';
+      const date  = new Date(h.createdAt).toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+      return `<div class="recent-item"><div class="ri-dot" style="background:${color}"></div><div class="ri-topic">${h.topic}</div><div class="ri-slides">${h.nSlides} slides</div><div class="ri-meta">${date}</div></div>`;
+    }).join('');
+  }
+
+  loadProfileSidebar();
+  buildNav();
+  render();
+</script>
+</body>
+</html>
