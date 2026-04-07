@@ -192,8 +192,10 @@
           <div class="field"><label>Cor principal da marca</label>
             <div class="color-section">
               <div class="color-row">
-                <div class="color-swatch" id="cSwatch" style="background:#2DBD6E;" onclick="document.getElementById('cPicker').click()"></div>
-                <input type="color" id="cPicker" class="color-picker-hidden" value="#2DBD6E">
+                <div style="position:relative;width:36px;height:36px;border-radius:9px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;">
+                  <div id="cSwatch" style="position:absolute;inset:0;background:#2DBD6E;pointer-events:none;border-radius:9px;"></div>
+                  <input type="color" id="cPicker" value="#2DBD6E" style="position:absolute;inset:-4px;width:calc(100%+8px);height:calc(100%+8px);opacity:0;cursor:pointer;border:none;padding:0;">
+                </div>
                 <div class="hex-wrap"><span class="hash">#</span><input type="text" id="cHex" value="2DBD6E" maxlength="6" placeholder="2DBD6E"></div>
               </div>
               <div class="color-hint">
@@ -205,26 +207,28 @@
             </div>
           </div>
           <div class="field"><label>Logo</label>
-            <div class="logo-drop" id="logoDrop" onclick="document.getElementById('logoFile').click()">
-              <p>Clique para enviar o logo</p><small>PNG ou JPG</small>
+            <div class="logo-drop" id="logoDrop">
+              <label for="logoFile" style="cursor:pointer;display:block;width:100%;height:100%;">
+                <p>Toque aqui para enviar o logo</p><small>PNG ou JPG</small>
+              </label>
             </div>
-            <input type="file" id="logoFile" accept="image/*" style="display:none">
+            <input type="file" id="logoFile" accept="image/*" style="position:absolute;left:-9999px;opacity:0;">
           </div>
           <div class="field">
             <label>Publicações de referência <span style="font-weight:400;color:var(--text-4);">(opcional · até 5)</span></label>
             <div class="hint">A IA analisa o tom e estilo das suas referências.</div>
             <div class="refs-grid">
-              <div class="ref-slot" id="rs0" onclick="triggerRef(0)"><div class="plus">+</div><div class="num">1</div></div>
-              <div class="ref-slot" id="rs1" onclick="triggerRef(1)"><div class="plus">+</div><div class="num">2</div></div>
-              <div class="ref-slot" id="rs2" onclick="triggerRef(2)"><div class="plus">+</div><div class="num">3</div></div>
-              <div class="ref-slot" id="rs3" onclick="triggerRef(3)"><div class="plus">+</div><div class="num">4</div></div>
-              <div class="ref-slot" id="rs4" onclick="triggerRef(4)"><div class="plus">+</div><div class="num">5</div></div>
+              <label class="ref-slot" id="rs0" for="rf0"><div class="plus">+</div><div class="num">1</div></label>
+              <label class="ref-slot" id="rs1" for="rf1"><div class="plus">+</div><div class="num">2</div></label>
+              <label class="ref-slot" id="rs2" for="rf2"><div class="plus">+</div><div class="num">3</div></label>
+              <label class="ref-slot" id="rs3" for="rf3"><div class="plus">+</div><div class="num">4</div></label>
+              <label class="ref-slot" id="rs4" for="rf4"><div class="plus">+</div><div class="num">5</div></label>
             </div>
-            <input type="file" id="rf0" accept="image/*" style="display:none" onchange="loadRef(0,this)">
-            <input type="file" id="rf1" accept="image/*" style="display:none" onchange="loadRef(1,this)">
-            <input type="file" id="rf2" accept="image/*" style="display:none" onchange="loadRef(2,this)">
-            <input type="file" id="rf3" accept="image/*" style="display:none" onchange="loadRef(3,this)">
-            <input type="file" id="rf4" accept="image/*" style="display:none" onchange="loadRef(4,this)">
+            <input type="file" id="rf0" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="loadRef(0,this)">
+            <input type="file" id="rf1" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="loadRef(1,this)">
+            <input type="file" id="rf2" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="loadRef(2,this)">
+            <input type="file" id="rf3" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="loadRef(3,this)">
+            <input type="file" id="rf4" accept="image/*" style="position:absolute;left:-9999px;opacity:0;" onchange="loadRef(4,this)">
           </div>
           <div class="save-row">
             <label for="saveChk"><input type="checkbox" id="saveChk" class="save-check" checked>Salvar perfil neste dispositivo<span class="saved-pill" id="savedPill">✓ Salvo</span></label>
@@ -437,13 +441,16 @@ function editProfile(){document.getElementById('profileBanner').style.display='n
 function clearProfile(){store.del(STORAGE_KEY);editProfile();document.getElementById('fBrandName').value='';document.getElementById('fHandle').value='';document.getElementById('fNiche').value='';applyColor('2DBD6E');logoB64='';const dr=document.getElementById('logoDrop');dr.innerHTML='<p>Clique para enviar o logo</p><small>PNG ou JPG</small>';dr.classList.remove('has');}
 
 // COLOR
-const cPick=document.getElementById('cPicker'),cHex=document.getElementById('cHex'),cSw=document.getElementById('cSwatch');
-function applyColor(h){const up=h.toUpperCase();cSw.style.background='#'+up;cHex.value=up;cPick.value='#'+up;}
+const cPick=document.getElementById('cPicker'),cHex=document.getElementById('cHex');
+function applyColor(h){const up=h.toUpperCase();document.getElementById('cSwatch').style.background='#'+up;cHex.value=up;cPick.value='#'+up;}
 cPick.addEventListener('input',()=>applyColor(cPick.value.slice(1)));
+cPick.addEventListener('change',()=>applyColor(cPick.value.slice(1)));
 cHex.addEventListener('input',function(){const v=this.value.replace(/[^0-9A-Fa-f]/g,'').slice(0,6).toUpperCase();this.value=v;if(v.length===6){cSw.style.background='#'+v;cPick.value='#'+v;}});
 
 // LOGO + REFS
 document.getElementById('logoFile').addEventListener('change',function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{logoB64=ev.target.result;const d=document.getElementById('logoDrop');d.innerHTML=`<img src="${logoB64}" style="max-height:52px;max-width:150px;display:block;margin:0 auto 6px;border-radius:8px;" alt="logo"><p style="font-size:12px;">${f.name}</p>`;d.classList.add('has');};r.readAsDataURL(f);});
+// Remove triggerRef since we now use label+for
+function triggerRef(i){document.getElementById('rf'+i).click();}
 function triggerRef(i){document.getElementById('rf'+i).click();}
 function loadRef(i,inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{refImages[i]=ev.target.result;const s=document.getElementById('rs'+i);s.innerHTML=`<img src="${ev.target.result}" alt="ref"><div class="rm" onclick="rmRef(event,${i})">✕</div>`;s.classList.add('filled');s.onclick=null;};r.readAsDataURL(f);}
 function rmRef(e,i){e.stopPropagation();refImages[i]=null;const s=document.getElementById('rs'+i);s.innerHTML='<div class="plus">+</div><div class="num">'+(i+1)+'</div>';s.classList.remove('filled');s.onclick=()=>triggerRef(i);document.getElementById('rf'+i).value='';}
@@ -486,7 +493,7 @@ async function generate(){
   if(validRefs.length>0){validRefs.forEach(b64=>{const m=b64.match(/data:([^;]+);/);uc.push({type:'image',source:{type:'base64',media_type:m?m[1]:'image/jpeg',data:b64.split(',')[1]}});});}
   uc.push({type:'text',text:`${validRefs.length>0?`As ${validRefs.length} imagem(ns) são referências de estilo. Analise tom, vocabulário e replique.\n\n`:''}Crie conteúdo para carrossel de ${nSlides} slides sobre: "${topic}"\nMarca: ${brandName} · Nicho: ${niche||'saúde'} · Tom: ${selToneVal}\nRegras: Slide 1 = HOOK forte. Intermediários = conteúdo valioso. Slide ${nSlides} = CTA. Português brasileiro.\nResponda SOMENTE JSON sem markdown:\n{"slides":[{"tag":"TAG","title":"título","body":"2-3 frases","items":["item1"],"cta":null}]}`});
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2400,messages:[{role:'user',content:uc}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2400,messages:[{role:'user',content:uc}]})});
     const data=await res.json();
     const raw=data.content?.find(b=>b.type==='text')?.text||'';
     const slides=JSON.parse(raw.replace(/```json|```/g,'').trim()).slides;
@@ -529,7 +536,7 @@ function onChange(){_changed[_cur]=true;document.getElementById('changedBadge').
 function buildItemsEd(items){const ed=document.getElementById('itemsEd');ed.innerHTML=items.map((it,i)=>`<div class="item-row"><input class="iinput" type="text" value="${it.replace(/"/g,'&quot;')}" oninput="onChange()"><button class="item-del" onclick="delItem(${i})">✕</button></div>`).join('');}
 function addItem(){saveEdit();_slides[_cur].items=[..._slides[_cur].items,''];buildItemsEd(_slides[_cur].items);onChange();const ii=document.querySelectorAll('.iinput');if(ii.length)ii[ii.length-1].focus();}
 function delItem(i){saveEdit();_slides[_cur].items.splice(i,1);buildItemsEd(_slides[_cur].items);onChange();}
-async function regenSlide(){const btn=document.getElementById('regenBtn');btn.disabled=true;document.getElementById('regenIcon').outerHTML='<span style="width:12px;height:12px;border:2px solid rgba(45,189,110,.2);border-top-color:#2DBD6E;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;" id="regenIcon"></span>';const prompt=`Regenere APENAS o slide ${_cur+1} de ${_slides.length} sobre "${document.getElementById('fTopic').value}". Tom: ${selToneVal} · Nicho: ${_cfg.niche||'saúde'}. ${_cur===0?'Slide 1: HOOK forte.':_cur===_slides.length-1?'Último: CTA claro.':'Slide de conteúdo valioso.'}Responda SOMENTE JSON:\n{"tag":"TAG","title":"título","body":"texto","items":["item"],"cta":${_cur===_slides.length-1?'"texto cta"':'null'}}`;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const raw=data.content?.find(b=>b.type==='text')?.text||'';const ns=JSON.parse(raw.replace(/```json|```/g,'').trim());_slides[_cur]={...ns,items:ns.items||[]};_changed[_cur]=true;renderSlide(_cur);}catch(e){alert('Erro: '+e.message);}finally{const sp=document.getElementById('regenIcon');if(sp)sp.outerHTML='<span id="regenIcon">↻</span>';btn.disabled=false;}}
+async function regenSlide(){const btn=document.getElementById('regenBtn');btn.disabled=true;document.getElementById('regenIcon').outerHTML='<span style="width:12px;height:12px;border:2px solid rgba(45,189,110,.2);border-top-color:#2DBD6E;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;" id="regenIcon"></span>';const prompt=`Regenere APENAS o slide ${_cur+1} de ${_slides.length} sobre "${document.getElementById('fTopic').value}". Tom: ${selToneVal} · Nicho: ${_cfg.niche||'saúde'}. ${_cur===0?'Slide 1: HOOK forte.':_cur===_slides.length-1?'Último: CTA claro.':'Slide de conteúdo valioso.'}Responda SOMENTE JSON:\n{"tag":"TAG","title":"título","body":"texto","items":["item"],"cta":${_cur===_slides.length-1?'"texto cta"':'null'}}`;try{const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:prompt}]})});const data=await res.json();const raw=data.content?.find(b=>b.type==='text')?.text||'';const ns=JSON.parse(raw.replace(/```json|```/g,'').trim());_slides[_cur]={...ns,items:ns.items||[]};_changed[_cur]=true;renderSlide(_cur);}catch(e){alert('Erro: '+e.message);}finally{const sp=document.getElementById('regenIcon');if(sp)sp.outerHTML='<span id="regenIcon">↻</span>';btn.disabled=false;}}
 
 function buildSlidePreview(s,i,total,cfg,type,light,dark){
   const{color,logoB64:lb,brandName}=cfg;const pct=Math.round(((i+1)/total)*100);const isLast=i===total-1;
@@ -554,7 +561,7 @@ async function genCaption(){
   const topic=document.getElementById('fTopic').value;const cfg=_cfg;
   const sum=_slides.map((s,i)=>`Slide ${i+1}: ${s.title} — ${s.body}`).join('\n');
   const prompt=`Crie legenda Instagram para carrossel:\n- Tema: "${topic}"\n- Perfil: @${cfg.handle} · Nicho: ${cfg.niche||'saúde'}\n- Estilo: ${capStyle}\nSlides:\n${sum}\n\nRegras: máx 150 palavras, primeira linha impacta, sem emoji no início, 1-3 emojis estratégicos, CTA no final, português natural.\nGere 20 hashtags PT+EN, específico ao geral.\nResponda SOMENTE JSON:\n{"caption":"texto","hashtags":["ht1","ht2"]}`;
-  try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})});const data=await res.json();const raw=data.content?.find(b=>b.type==='text')?.text||'';const p=JSON.parse(raw.replace(/```json|```/g,'').trim());document.getElementById('capText').value=p.caption||'';_hashtags=p.hashtags||[];renderHt(true);document.getElementById('capResult').style.display='block';}
+  try{const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:prompt}]})});const data=await res.json();const raw=data.content?.find(b=>b.type==='text')?.text||'';const p=JSON.parse(raw.replace(/```json|```/g,'').trim());document.getElementById('capText').value=p.caption||'';_hashtags=p.hashtags||[];renderHt(true);document.getElementById('capResult').style.display='block';}
   catch(e){alert('Erro: '+e.message);}
   finally{const sp=document.getElementById('capIcon');if(sp)sp.outerHTML='<span id="capIcon">✨</span>';btn.disabled=false;}
 }
