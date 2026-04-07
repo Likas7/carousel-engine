@@ -445,7 +445,7 @@ const cPick=document.getElementById('cPicker'),cHex=document.getElementById('cHe
 function applyColor(h){const up=h.toUpperCase();document.getElementById('cSwatch').style.background='#'+up;cHex.value=up;cPick.value='#'+up;}
 cPick.addEventListener('input',()=>applyColor(cPick.value.slice(1)));
 cPick.addEventListener('change',()=>applyColor(cPick.value.slice(1)));
-cHex.addEventListener('input',function(){const v=this.value.replace(/[^0-9A-Fa-f]/g,'').slice(0,6).toUpperCase();this.value=v;if(v.length===6){cSw.style.background='#'+v;cPick.value='#'+v;}});
+cHex.addEventListener('input',function(){const v=this.value.replace(/[^0-9A-Fa-f]/g,'').slice(0,6).toUpperCase();this.value=v;if(v.length===6){document.getElementById('cSwatch').style.background='#'+v;cPick.value='#'+v;}});
 
 // LOGO + REFS
 document.getElementById('logoFile').addEventListener('change',function(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{logoB64=ev.target.result;const d=document.getElementById('logoDrop');d.innerHTML=`<img src="${logoB64}" style="max-height:52px;max-width:150px;display:block;margin:0 auto 6px;border-radius:8px;" alt="logo"><p style="font-size:12px;">${f.name}</p>`;d.classList.add('has');};r.readAsDataURL(f);});
